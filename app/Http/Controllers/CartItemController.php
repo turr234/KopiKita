@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\cart_item;
 use App\Models\db_cart;
 use App\Models\db_cart_item;
+use App\Models\order;
+use App\Models\order_item;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -25,7 +27,8 @@ class CartItemController extends Controller
     public function create()
     {
         $users = User::all();
-        return view('cart_items.create');
+        $orders = order::all();
+        return view('cart_items.create',compact('users','orders'));
     }
 
     /**
