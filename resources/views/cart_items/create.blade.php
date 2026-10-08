@@ -38,7 +38,6 @@
 
                         <div class="row g-3">
                             {{-- Cart ID --}}
-                            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
                             <div class="col-md-6">
                                 <label for="cart_id" class="form-label fw-semibold small text-secondary">Cart ID <span class="text-danger">*</span></label>
                                 <input type="number" id="cart_id" name="cart_id" 
