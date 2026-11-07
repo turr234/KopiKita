@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('layouts.app')
 
 @section('content')
 <div class="container-fluid py-4">
@@ -20,9 +20,11 @@
                 <h5 class="mb-0 fw-bold text-dark">Galeri Foto Produk</h5>
                 <small class="text-muted">Kelola foto sekunder, gambar utama, dan urutan tampilan</small>
             </div>
+            @can('create product images')
             <a href="{{ route('product_images.create') }}" class="btn btn-primary btn-sm px-3 py-2 fw-medium">
                 + Tambah Foto
             </a>
+            @endcan
         </div>
 
         <div class="card-body p-0">
@@ -90,14 +92,19 @@
                                 {{-- Tombol Aksi --}}
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
-                                        <a href="{{ route('product_images.show', $item->id) }}" class="btn btn-outline-secondary" title="Detail">Detail</a>
-                                        <a href="{{ route('product_images.edit', $item->id) }}" class="btn btn-outline-primary" title="Edit">Edit</a>
-
-                                        <form action="{{ route('product_images.destroy', $item->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Yakin hapus foto ini?')" title="Hapus">Hapus</button>
-                                        </form>
+                                        @can('show product images')
+                                            <a href="{{ route('product_images.show', $item->id) }}" class="btn btn-outline-secondary" title="Detail">Detail</a>
+                                        @endcan
+                                        @can('edit product images')
+                                            <a href="{{ route('product_images.edit', $item->id) }}" class="btn btn-outline-primary" title="Edit">Edit</a>
+                                        @endcan
+                                        @can('delete product images')
+                                            <form action="{{ route('product_images.destroy', $item->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Yakin hapus foto ini?')" title="Hapus">Hapus</button>
+                                            </form>
+                                        @endcan
                                     </div>
                                 </td>
                             </tr>

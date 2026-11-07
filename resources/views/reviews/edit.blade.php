@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('layouts.app')
 @section('content')
     <a href="{{ route('reviews.index') }}" class="btn btn-secondary mb-3">Kembali</a>
 

@@ -1,0 +1,9 @@
+admin toko: Kelola foto sekunder, gambar utama, dan urutan tampilan(product_images), 'Kelola inventaris barang, varian, dan status penjualan(products)', 'Kelola ulasan, penilaian rating, dan visibilitas komentar pembeli(reviews)', Kelola identitas, kontak, dan tautan sosial media took(store_settings)', Kelola grup kategori produk, slug URL, dan status aktif(categories), Kelola foto sekunder, gambar utama, dan urutan tampilan(product_images), Kelola data pengguna dan role(users)
+
+
+super admin: semua
+
+karyawan:Kelola buku alamat pengiriman pelanggan dan status alamat Utama(addresses), Rincian produk, kuantitas, dan harga subtotal per item transaksi(order_items), Log histori perubahan status pesanan dan catatan pengiriman(order_status_histories), Kelola transaksi pelanggan, pengiriman kurir(orders), Kelola transaksi, konfirmasi bukti transfer, dan status verifikasi(payments).
+
+
+pembeli: Kelola akun bank tujuan pembayaran dan petunjuk transfer(bank_accounts), Kelola item produk yang tersimpan di dalam keranjang belanja(cart_items),Kelola sesi keranjang aktif milik pengguna(carts)

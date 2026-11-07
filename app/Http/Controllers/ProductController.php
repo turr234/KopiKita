@@ -13,8 +13,12 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $product = product::latest()->paginate(10);
-        return view('products.index', compact('product'));
+        // 1. Ambil data produk terbaru dengan pagination (5 atau 10 item per halaman)
+        $product = Product::latest()->paginate(10);
+
+        // 2. Kirim data $product beserta variabel $i untuk penomoran pagination yang konsisten
+        return view('products.index', compact('product'))
+            ->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
     /**
@@ -52,10 +56,9 @@ class ProductController extends Controller
             $filepath = $request->file('main_image')->store('main_image', 'public');
             product::create($request->all());
             $input['main_image'] = $filepath;
-
         }
 
-        
+
         return redirect()->route('products.index')->with('Success', 'Data Berhasil Ditambah');
     }
 
@@ -82,7 +85,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        
+
         $request->validate([
             'name' => 'required|string|max:150',
             'slug' => 'required|string|max:180',
@@ -100,7 +103,7 @@ class ProductController extends Controller
             'sold_count' => 'required|string'
         ]);
 
-        
+
 
         $product = product::findOrFail($id);
         $product->update($request->all());
@@ -114,6 +117,6 @@ class ProductController extends Controller
     {
         $product->delete();
 
-        return redirect()->route('products.index')->with('success','Data Berhasil Dihapus');
+        return redirect()->route('products.index')->with('success', 'Data Berhasil Dihapus');
     }
 }

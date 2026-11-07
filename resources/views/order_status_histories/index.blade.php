@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('layouts.app')
 
 @section('content')
 <div class="container-fluid py-4">
@@ -20,9 +20,11 @@
                 <h5 class="mb-0 fw-bold text-dark">Riwayat Status Pesanan</h5>
                 <small class="text-muted">Log histori perubahan status pesanan dan catatan pengiriman</small>
             </div>
-            <a href="{{ route('order_status_histories.create') }}" class="btn btn-primary btn-sm px-3 py-2 fw-medium">
-                + Catat Riwayat
-            </a>
+            @can('create order status histories')
+                <a href="{{ route('order_status_histories.create') }}" class="btn btn-primary btn-sm px-3 py-2 fw-medium">
+                    + Catat Riwayat
+                </a>
+            @endcan
         </div>
 
         <div class="card-body p-0">
@@ -139,14 +141,19 @@
                                 {{-- Tombol Aksi --}}
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
-                                        <a href="{{ route('order_status_histories.show', $item->id) }}" class="btn btn-outline-secondary" title="Detail">Detail</a>
-                                        <a href="{{ route('order_status_histories.edit', $item->id) }}" class="btn btn-outline-primary" title="Edit">Edit</a>
-
-                                        <form action="{{ route('order_status_histories.destroy', $item->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Yakin hapus histori ini?')" title="Hapus">Hapus</button>
-                                        </form>
+                                        @can('show order_status_histories')
+                                            <a href="{{ route('order_status_histories.show', $item->id) }}" class="btn btn-outline-secondary" title="Detail">Detail</a>
+                                        @endcan
+                                        @can('edit order_status_histories')
+                                            <a href="{{ route('order_status_histories.edit', $item->id) }}" class="btn btn-outline-primary" title="Edit">Edit</a>
+                                        @endcan
+                                        @can('delete order_status_histories')
+                                            <form action="{{ route('order_status_histories.destroy', $item->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Yakin hapus histori ini?')" title="Hapus">Hapus</button>
+                                            </form>
+                                        @endcan
                                     </div>
                                 </td>
                             </tr>

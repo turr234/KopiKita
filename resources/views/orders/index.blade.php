@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('layouts.app')
 
 @section('content')
 <div class="container-fluid py-4">
@@ -20,9 +20,11 @@
                 <h5 class="mb-0 fw-bold text-dark">Daftar Pesanan (Orders)</h5>
                 <small class="text-muted">Kelola transaksi pelanggan, pengiriman kurir, dan riwayat pesanan</small>
             </div>
+           @can('create orders')
             <a href="{{ route('orders.create') }}" class="btn btn-primary btn-sm px-3 py-2 fw-medium">
                 + Buat Pesanan
-            </a>
+            </a>           
+           @endcan
         </div>
 
         <div class="card-body p-0">
@@ -141,14 +143,23 @@
                                 {{-- Tombol Aksi --}}
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
+                                        @can('view orders')
+                                            
                                         <a href="{{ route('orders.show', $item->id) }}" class="btn btn-outline-secondary" title="Detail Pesanan">Detail</a>
+                                        @endcan
+                                        @can('edit orders')
+                                        
                                         <a href="{{ route('orders.edit', $item->id) }}" class="btn btn-outline-primary" title="Ubah Pesanan">Edit</a>
-
+                                        @endcan
+                                        @can('delete orders')
+                                            
                                         <form action="{{ route('orders.destroy', $item->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Yakin ingin menghapus pesanan ini?')" title="Hapus">Hapus</button>
                                         </form>
+                                        @endcan
+
                                     </div>
                                 </td>
                             </tr>

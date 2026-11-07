@@ -19,4 +19,14 @@ class order_item extends Model
         'quantity',
         'subtotal'
     ];
+
+    public function order()
+    {
+        return $this->belongsTo(order::class, 'order_id');
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(product::class, 'product_id');
+    }
 }

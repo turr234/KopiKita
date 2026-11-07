@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('layouts.app')
 
 @section('content')
 <div class="container-fluid py-4">
@@ -20,9 +20,11 @@
                 <h5 class="mb-0 fw-bold text-dark">Daftar Keranjang Belanja</h5>
                 <small class="text-muted">Kelola sesi keranjang aktif milik pengguna</small>
             </div>
-            <a href="{{ route('carts.create') }}" class="btn btn-primary btn-sm px-3 py-2 fw-medium">
-                + Tambah Keranjang
-            </a>
+            @can('create carts')
+                <a href="{{ route('carts.create') }}" class="btn btn-primary btn-sm px-3 py-2 fw-medium">
+                    + Tambah Keranjang
+                </a>
+            @endcan
         </div>
 
         <div class="card-body p-0">
@@ -85,14 +87,19 @@
                                 {{-- Tombol Aksi --}}
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
+                                        @can('show carts')
                                         <a href="{{ route('carts.show', $item->id) }}" class="btn btn-outline-secondary" title="Detail">Detail</a>
+                                        @endcan
+                                        @can('edit carts')
                                         <a href="{{ route('carts.edit', $item->id) }}" class="btn btn-outline-primary" title="Edit">Edit</a>
-
+                                        @endcan
+                                        @can('delete carts')
                                         <form action="{{ route('carts.destroy', $item->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Yakin ingin menghapus keranjang ini?')" title="Hapus">Hapus</button>
                                         </form>
+                                        @endcan
                                     </div>
                                 </td>
                             </tr>

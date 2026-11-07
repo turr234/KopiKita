@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('layouts.app')
 
 @section('content')
 <div class="container-fluid py-4">
@@ -20,9 +20,11 @@
                 <h5 class="mb-0 fw-bold text-dark">Daftar Review Produk</h5>
                 <small class="text-muted">Kelola ulasan, penilaian rating, dan visibilitas komentar pembeli</small>
             </div>
+            @can('create reviews')
             <a href="{{ route('reviews.create') }}" class="btn btn-primary btn-sm px-3 py-2 fw-medium">
                 + Tambah Review
             </a>
+            @endcan
         </div>
 
         <div class="card-body p-0">
@@ -103,14 +105,20 @@
                                 {{-- Aksi --}}
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
-                                        <a href="{{ route('reviews.show', $item->id) }}" class="btn btn-outline-secondary" title="Detail">Detail</a>
-                                        <a href="{{ route('reviews.edit', $item->id) }}" class="btn btn-outline-primary" title="Edit">Edit</a>
+                                        @can('view reviews')
+                                            <a href="{{ route('reviews.show', $item->id) }}" class="btn btn-outline-secondary" title="Detail">Detail</a>
+                                        @endcan
+                                        @can('edit reviews')
+                                            <a href="{{ route('reviews.edit', $item->id) }}" class="btn btn-outline-primary" title="Edit">Edit</a>
+                                        @endcan
 
-                                        <form action="{{ route('reviews.destroy', $item->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Yakin ingin menghapus review ini?')" title="Hapus">Hapus</button>
-                                        </form>
+                                        @can('delete reviews')
+                                            <form action="{{ route('reviews.destroy', $item->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Yakin ingin menghapus review ini?')" title="Hapus">Hapus</button>
+                                            </form>
+                                        @endcan
                                     </div>
                                 </td>
                             </tr>

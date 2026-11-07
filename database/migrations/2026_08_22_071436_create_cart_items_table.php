@@ -15,12 +15,16 @@ return new class extends Migration
             $table->id();
             $table->foreignId('cart_id')->constrained('carts')->onDelete('cascade');
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
+            
+            // Tambahkan relasi ke jenis_products (opsional/nullable jika ada produk tanpa jenis)
+            $table->foreignId('jenis_product_id')->nullable()->constrained('jenis_products')->onDelete('set null');
+
             $table->unsignedInteger('quantity')->default(1);
             $table->decimal('price', 15, 2)->default(0);
             $table->timestamps();
 
-            // Constraint Unik: gabungan cart_id dan product_id
-            $table->unique(['cart_id', 'product_id']);
+            // Constraint Unik: Mencegah duplikasi kombinasi Cart + Produk + Jenis Produk yang sama
+            $table->unique(['cart_id', 'product_id', 'jenis_product_id']);
         });
     }
 

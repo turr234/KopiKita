@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('layouts.app')
 
 @section('content')
     <div class="container-fluid py-4">
@@ -20,9 +20,11 @@
                     <h5 class="mb-0 fw-bold text-dark">Daftar Pembayaran</h5>
                     <small class="text-muted">Kelola transaksi, konfirmasi bukti transfer, dan status verifikasi</small>
                 </div>
-                <a href="{{ route('payments.create') }}" class="btn btn-primary btn-sm px-3 py-2 fw-medium">
-                    + Tambah Pembayaran
-                </a>
+                @can('create payments')
+                    <a href="{{ route('payments.create') }}" class="btn btn-primary btn-sm px-3 py-2 fw-medium">
+                        + Tambah Pembayaran
+                    </a>
+                @endcan
             </div>
 
             <div class="card-body p-0">
@@ -142,19 +144,24 @@
                                     {{-- Tombol Aksi --}}
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <a href="{{ route('payments.show', $item->id) }}"
-                                                class="btn btn-outline-secondary" title="Detail">Detail</a>
-                                            <a href="{{ route('payments.edit', $item->id) }}"
-                                                class="btn btn-outline-primary" title="Edit">Edit</a>
-
-                                            <form action="{{ route('payments.destroy', $item->id) }}" method="POST"
-                                                class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-outline-danger"
-                                                    onclick="return confirm('Yakin ingin menghapus data pembayaran ini?')"
-                                                    title="Hapus">Hapus</button>
-                                            </form>
+                                            @can('show payments')
+                                                <a href="{{ route('payments.show', $item->id) }}"
+                                                    class="btn btn-outline-secondary" title="Detail">Detail</a>
+                                            @endcan
+                                            @can('edit payments')
+                                                <a href="{{ route('payments.edit', $item->id) }}"
+                                                    class="btn btn-outline-primary" title="Edit">Edit</a>
+                                            @endcan
+                                            @can('delete payments')
+                                                <form action="{{ route('payments.destroy', $item->id) }}" method="POST"
+                                                    class="d-inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-outline-danger"
+                                                        onclick="return confirm('Yakin ingin menghapus data pembayaran ini?')"
+                                                        title="Hapus">Hapus</button>
+                                                </form>
+                                            @endcan
                                         </div>
                                     </td>
                                 </tr>

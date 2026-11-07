@@ -49,4 +49,24 @@ class order extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function items()
+    {
+        return $this->hasMany(order_item::class, 'order_id');
+    }
+
+    public function address()
+    {
+        return $this->belongsTo(addresse::class, 'address_id');
+    }
+
+    public function statusHistories()
+    {
+        return $this->hasMany(order_status_historie::class, 'order_id');
+    }
+
+    public function payment()
+    {
+        return $this->hasOne(payment::class, 'order_id');
+    }
 }

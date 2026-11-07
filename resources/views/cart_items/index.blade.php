@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('layouts.app')
 
 @section('content')
 <div class="container-fluid py-4">
@@ -20,9 +20,11 @@
                 <h5 class="mb-0 fw-bold text-dark">Daftar Item Keranjang (Cart Items)</h5>
                 <small class="text-muted">Kelola item produk yang tersimpan di dalam keranjang belanja</small>
             </div>
-            <a href="{{ route('cart_items.create') }}" class="btn btn-primary btn-sm px-3 py-2 fw-medium">
-                + Tambah Item Keranjang
-            </a>
+            @can('create cart_items')
+                <a href="{{ route('cart_items.create') }}" class="btn btn-primary btn-sm px-3 py-2 fw-medium">
+                    + Tambah Item Keranjang
+                </a>
+            @endcan
         </div>
 
         <div class="card-body p-0">
@@ -80,14 +82,20 @@
                                 {{-- Tombol Aksi --}}
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
-                                        <a href="{{ route('cart_items.show', $item->id) }}" class="btn btn-outline-secondary" title="Detail">Detail</a>
-                                        <a href="{{ route('cart_items.edit', $item->id) }}" class="btn btn-outline-primary" title="Edit">Edit</a>
-
-                                        <form action="{{ route('cart_items.destroy', $item->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Yakin ingin menghapus item ini?')" title="Hapus">Hapus</button>
-                                        </form>
+                                        @can('show cart_items')
+                                            <a href="{{ route('cart_items.show', $item->id) }}" class="btn btn-outline-secondary" title="Detail">Detail</a>
+                                            
+                                        @endcan
+                                        @can('edit cart_items')
+                                            <a href="{{ route('cart_items.edit', $item->id) }}" class="btn btn-outline-primary" title="Edit">Edit</a>
+                                        @endcan
+                                        @can('delete cart_items')
+                                            <form action="{{ route('cart_items.destroy', $item->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Yakin ingin menghapus item ini?')" title="Hapus">Hapus</button>
+                                            </form>
+                                        @endcan
                                     </div>
                                 </td>
                             </tr>
