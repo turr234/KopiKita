@@ -30,35 +30,35 @@ class CategoriesController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:100',
             'slug' => 'required|string|max:150',
             'description' => 'required|string',
-            'image' => 'required|file|max:255|mimes:jpeg,jpg,png,gif',
+            'image' => 'required|file|max:2048|mimes:jpeg,jpg,png,gif',
             'is_active' => 'required|boolean'
         ]);
 
         if($request->hasFile('image')) {
-            $filepPath = $request->file('image')->store('image','public');
-            $input = $request->all();
-            $input['image'] = $filepPath;
+            $filePath = $request->file('image')->store('image','public');
+            $validated['image'] = $filePath;
         }
-        categories::create($request->all());
+        categories::create($validated);
         return redirect()->route('categories.index')->with('success', 'Data Berhasil Ditambahkan');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(categories $categories)
+    public function show($id)
     {
-        //
+        $categories = categories::findOrFail($id);
+        return view('categories.show', compact('categories'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(categories $id)
+    public function edit($id)
     {
         $categories = categories::findOrFail($id);
         return view('categories.edit', compact('categories'));
@@ -67,25 +67,30 @@ class CategoriesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, categories $id)
+    public function update(Request $request, $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:100',
             'slug' => 'required|string|max:150',
             'description' => 'required|string',
-            'image' => 'required|file|max:255|mimes:jpeg,jpg,png,gif',
+            'image' => 'nullable|file|max:2048|mimes:jpeg,jpg,png,gif',
             'is_active' => 'required|boolean'
         ]);
         $categories = categories::findOrFail($id);
-        $categories->update($request->all());
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('image', 'public');
+        }
+        $categories->update($validated);
         return redirect()->route('categories.index')->with('success', 'Data Berhasil Diupdate');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(categories $categories)
+    public function destroy($id)
     {
-        //
+        $categories = categories::findOrFail($id);
+        $categories->delete();
+        return redirect()->route('categories.index')->with('success', 'Data Berhasil Dihapus');
     }
 }

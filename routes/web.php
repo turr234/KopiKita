@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\landing_pages\LandingPagesController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\DokuPaymentController;
 use App\Http\Controllers\JenisProductsController;
 use App\Http\Controllers\LandingPagesController as ControllersLandingPagesController;
 
@@ -58,7 +59,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pesanan-berhasil/{order_number}', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::get('/pesanan-saya', [CheckoutController::class, 'myOrders'])->name('orders.my_orders');
     Route::get('/pesanan-saya/{order_number}', [CheckoutController::class, 'myOrderDetail'])->name('orders.my_order_detail');
+
+    // Integrasi DOKU Payment Gateway
+    Route::get('/doku/pay/{order_number}', [DokuPaymentController::class, 'pay'])->name('doku.pay');
+    Route::get('/doku/check-status/{order_number}', [DokuPaymentController::class, 'checkStatus'])->name('doku.check_status');
 });
+
+// Webhook / Notification Callback DOKU Payment Gateway (Bypass CSRF)
+Route::post('/doku/notification', [DokuPaymentController::class, 'notification'])->name('doku.notification');
+Route::post('/api/doku/notification', [DokuPaymentController::class, 'notification']);
 
 Auth::routes();
 

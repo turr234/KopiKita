@@ -35,6 +35,8 @@
     $storeInfo = null;
     if (in_array('admin toko a', $userRoles)) {
         $storeInfo = [
+            'type' => 'cabang',
+            'label' => 'Cabang Aktif',
             'name' => 'Group Toko A (Cabang Bandung)',
             'address' => 'Jl. Ir. H. Juanda No. 128, Dago, Bandung',
             'badge' => 'Toko A',
@@ -45,6 +47,8 @@
         ];
     } elseif (in_array('admin toko b', $userRoles)) {
         $storeInfo = [
+            'type' => 'cabang',
+            'label' => 'Cabang Aktif',
             'name' => 'Group Toko B (Cabang Jakarta)',
             'address' => 'Jl. Senopati No. 45, Kebayoran Baru, Jakarta Selatan',
             'badge' => 'Toko B',
@@ -55,6 +59,8 @@
         ];
     } elseif (in_array('admin toko c', $userRoles)) {
         $storeInfo = [
+            'type' => 'cabang',
+            'label' => 'Cabang Aktif',
             'name' => 'Group Toko C (Cabang Yogyakarta)',
             'address' => 'Jl. Malioboro No. 88, Sosromenduran, Kota Yogyakarta',
             'badge' => 'Toko C',
@@ -63,8 +69,10 @@
             'badge_class' => 'bg-warning text-dark',
             'icon' => 'bi-shop-window'
         ];
-    } elseif (in_array('admin', $userRoles)) {
+    } elseif (in_array('admin', $userRoles) || in_array('super admin', $userRoles)) {
         $storeInfo = [
+            'type' => 'global',
+            'label' => 'Hak Akses Utama',
             'name' => 'Super Admin - Seluruh Toko (Group Toko A, B, C)',
             'address' => 'Akses penuh ke semua cabang toko dan operasional sistem',
             'badge' => 'Semua Toko (A, B, C)',
@@ -72,6 +80,30 @@
             'color' => '#212529',
             'badge_class' => 'bg-dark',
             'icon' => 'bi-shield-check'
+        ];
+    } elseif (in_array('admin toko', $userRoles)) {
+        $storeInfo = [
+            'type' => 'global',
+            'label' => 'Hak Akses',
+            'name' => 'Admin Toko (Katalog, Inventaris & Pengaturan)',
+            'address' => 'Kelola produk, varian, ulasan, foto, dan pengaturan profil toko',
+            'badge' => 'Admin Toko',
+            'bg' => '#e0f2fe',
+            'color' => '#0369a1',
+            'badge_class' => 'bg-info text-dark',
+            'icon' => 'bi-shop'
+        ];
+    } elseif (in_array('staff', $userRoles) || in_array('karyawan', $userRoles)) {
+        $storeInfo = [
+            'type' => 'global',
+            'label' => 'Hak Akses',
+            'name' => 'Staff Operasional (Pesanan & Pengiriman)',
+            'address' => 'Verifikasi bukti pembayaran manual, transaksi pesanan & status pengiriman',
+            'badge' => 'Staff Toko',
+            'bg' => '#f3e8ff',
+            'color' => '#6b21a8',
+            'badge_class' => 'bg-secondary',
+            'icon' => 'bi-person-badge'
         ];
     }
   @endphp
@@ -81,7 +113,7 @@
     <div class="d-flex align-items-center gap-2">
       <i class="bi {{ $storeInfo['icon'] }} fs-5"></i>
       <div>
-        <strong>Cabang Aktif: {{ $storeInfo['name'] }}</strong>
+        <strong>{{ $storeInfo['label'] }}: {{ $storeInfo['name'] }}</strong>
         <span class="ms-2 small text-muted d-none d-md-inline">| {{ $storeInfo['address'] }} &bull; Pengelola: {{ Auth::user()->name }}</span>
       </div>
     </div>

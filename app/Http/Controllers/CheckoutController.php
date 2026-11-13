@@ -252,6 +252,31 @@ class CheckoutController extends Controller
 
             DB::commit();
 
+            // 9. Jika Metode Pembayaran QRIS atau DOKU Payment Gateway
+            $isDokuMethod = in_array($request->payment_method, ['qris', 'doku', 'doku_qris', 'doku_va']);
+            if ($isDokuMethod) {
+                try {
+                    $dokuService = app(\App\Services\DokuService::class);
+                    $paymentChannels = ($request->payment_method === 'doku_va')
+                        ? ['VIRTUAL_ACCOUNT_BCA', 'VIRTUAL_ACCOUNT_BANK_MANDIRI', 'VIRTUAL_ACCOUNT_BRI', 'VIRTUAL_ACCOUNT_BNI']
+                        : ['QRIS'];
+
+                    $dokuResult = $dokuService->createCheckout($order, [
+                        'name' => $order->recipient_name,
+                        'email' => Auth::user()->email ?? 'pembeli@kopikita.id',
+                        'phone' => $order->recipient_phone,
+                        'address' => $order->shipping_address,
+                    ], $paymentChannels);
+
+                    // Jika metode Virtual Account dan ada link pembayaran, bisa redirect ke payment_url
+                    if ($request->payment_method === 'doku_va' && !empty($dokuResult['payment_url'])) {
+                        return redirect()->away($dokuResult['payment_url']);
+                    }
+                } catch (\Throwable $dokuError) {
+                    \Illuminate\Support\Facades\Log::warning("Gagal inisiasi DOKU di Checkout: " . $dokuError->getMessage());
+                }
+            }
+
             return redirect()->route('checkout.success', $order->order_number)
                 ->with('success', 'Pesanan Anda berhasil dibuat!');
         } catch (\Exception $e) {
@@ -276,8 +301,10 @@ class CheckoutController extends Controller
 
         $bankAccounts = bank_account::where('is_active', true)->get();
         $storeSetting = store_setting::first();
+        $dokuService = app(\App\Services\DokuService::class);
+        $qrisImageUrl = $dokuService->getQrisImageUrl($order);
 
-        return view('landing_pages.order_success', compact('order', 'bankAccounts', 'storeSetting'));
+        return view('landing_pages.order_success', compact('order', 'bankAccounts', 'storeSetting', 'qrisImageUrl'));
     }
 
     /**
@@ -309,7 +336,9 @@ class CheckoutController extends Controller
 
         $bankAccounts = bank_account::where('is_active', true)->get();
         $storeSetting = store_setting::first();
+        $dokuService = app(\App\Services\DokuService::class);
+        $qrisImageUrl = $dokuService->getQrisImageUrl($order);
 
-        return view('landing_pages.my_order_detail', compact('order', 'bankAccounts', 'storeSetting'));
+        return view('landing_pages.my_order_detail', compact('order', 'bankAccounts', 'storeSetting', 'qrisImageUrl'));
     }
 }

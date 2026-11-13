@@ -106,6 +106,114 @@
         </div>
 
         <div class="grid grid-cols-1 gap-6">
+
+            <!-- Banner & Kartu Pembayaran QRIS Dinamis (Langsung Tampil di Layar Tanpa Apps DOKU) -->
+            @if(in_array($order->payment_method, ['qris', 'doku', 'doku_qris']) && $order->payment_status !== 'paid')
+                <div class="bg-gradient-to-b from-red-50/80 via-white to-stone-50 border-2 border-red-200 rounded-3xl p-6 sm:p-8 shadow-sm" id="qris-payment-section">
+                    
+                    <div class="flex flex-col md:flex-row items-center gap-8">
+                        
+                        <!-- Box QRIS Resmi -->
+                        <div class="w-full md:w-80 bg-white rounded-2xl border-2 border-stone-300 shadow-md p-5 text-center flex-shrink-0">
+                            <!-- Top Banner QRIS -->
+                            <div class="flex items-center justify-between pb-2.5 border-b border-stone-100 mb-3">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-black text-xl tracking-tighter text-red-600 font-sans">QRIS</span>
+                                    <span class="text-[8px] font-bold text-stone-400 uppercase tracking-widest leading-none block border-l pl-1.5 border-stone-300 text-left">
+                                        Quick Response Code<br>Indonesian Standard
+                                    </span>
+                                </div>
+                                <span class="text-[10px] font-bold bg-stone-100 text-stone-600 px-2 py-0.5 rounded border border-stone-200">
+                                    GPN
+                                </span>
+                            </div>
+
+                            <div class="mb-2">
+                                <h4 class="font-bold text-sm sm:text-base text-stone-900 leading-tight">KOPIKITA ROASTERY</h4>
+                                <span class="text-[10px] font-mono text-stone-400 block mt-0.5">NMID: ID1020261113001</span>
+                            </div>
+
+                            <!-- Gambar QR -->
+                            @php
+                                $detailQrUrl = $qrisImageUrl ?? (app(\App\Services\DokuService::class)->getQrisImageUrl($order));
+                            @endphp
+                            <div class="bg-white p-2.5 rounded-xl border border-stone-200 inline-block shadow-inner my-1">
+                                <img src="{{ $detailQrUrl }}" alt="QRIS Code" class="w-52 h-52 object-contain mx-auto">
+                            </div>
+
+                            <div class="mt-3 pt-2.5 border-t border-dashed border-stone-200">
+                                <span class="text-[11px] text-stone-500 block">Total Pembayaran:</span>
+                                <div class="font-serif font-extrabold text-xl text-red-600">
+                                    Rp {{ number_format($order->total, 0, ',', '.') }}
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <a href="{{ $detailQrUrl }}" download="QRIS-KOPIKITA-{{ $order->order_number }}.png" target="_blank"
+                                   class="w-full bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold py-2 px-3 rounded-xl transition-colors inline-flex items-center justify-center gap-1.5">
+                                    <i class="fa-solid fa-download"></i> Unduh Gambar QRIS
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Instruksi & Live Status -->
+                        <div class="flex-1 text-left space-y-4">
+                            <div>
+                                <div class="inline-flex items-center gap-1.5 bg-red-100 text-red-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2">
+                                    <i class="fa-solid fa-bolt"></i> Menunggu Pembayaran QRIS
+                                </div>
+                                <h3 class="font-serif font-bold text-2xl text-stone-900">Scan QR Code Langsung Dari HP Anda</h3>
+                                <p class="text-xs sm:text-sm text-stone-600 mt-1 leading-relaxed">
+                                    Buka aplikasi m-Banking (<strong>BCA Mobile, Livin' Mandiri, BRImo, BNI</strong>) atau E-Wallet (<strong>GoPay, OVO, DANA, ShopeePay, LinkAja</strong>), pilih menu <strong>Scan / QRIS</strong>, dan arahkan ke kode di samping.
+                                </p>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-4 border border-stone-200 shadow-xs space-y-2 text-xs text-stone-600">
+                                <div class="flex items-center gap-2 text-kopi-dark font-bold">
+                                    <i class="fa-solid fa-circle-check text-emerald-600"></i> Tidak Perlu Masuk ke Aplikasi DOKU
+                                </div>
+                                <p class="text-[11px] text-stone-500">
+                                    Pembayaran langsung tersinkronisasi otomatis dengan server DOKU. Saat Anda selesai scan dan bayar di aplikasi bank/e-wallet Anda, status halaman ini akan langsung berubah menjadi lunas!
+                                </p>
+                            </div>
+
+                            <!-- Live Polling Badge -->
+                            <div class="pt-2">
+                                <div id="polling-badge" class="inline-flex items-center gap-2.5 text-xs font-semibold text-stone-700 bg-white px-4 py-2 rounded-xl border border-stone-200 shadow-xs">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span>
+                                    <span>Menunggu pembayaran Anda...</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            @endif
+
+            <!-- Banner Virtual Account jika doku_va -->
+            @if($order->payment_method === 'doku_va' && $order->payment_status !== 'paid')
+                <div class="bg-red-50/90 border border-red-200 rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div class="flex items-start gap-3.5">
+                        <div class="w-11 h-11 rounded-xl bg-red-600 text-white flex items-center justify-center text-xl flex-shrink-0 shadow-sm mt-0.5 sm:mt-0">
+                            <i class="fa-solid fa-credit-card"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-bold text-sm sm:text-base text-stone-900">Virtual Account DOKU</h4>
+                                <span class="text-[10px] font-bold bg-red-600 text-white px-2 py-0.5 rounded tracking-wider uppercase">DOKU</span>
+                            </div>
+                            <p class="text-xs sm:text-sm text-stone-600 mt-0.5">
+                                Total tagihan: <strong class="text-stone-900 font-mono">Rp {{ number_format($order->total, 0, ',', '.') }}</strong>. Silakan bayar melalui Virtual Account BCA, Mandiri, BRI, atau BNI.
+                            </p>
+                        </div>
+                    </div>
+                    <a href="{{ route('doku.pay', $order->order_number) }}" 
+                       class="w-full sm:w-auto text-center inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-xl shadow transition-all flex-shrink-0">
+                        <i class="fa-solid fa-bolt"></i> Buka Nomor Virtual Account
+                    </a>
+                </div>
+            @endif
             
             <!-- Riwayat / Timeline Pelacakan Status -->
             <div class="bg-white rounded-2xl border border-kopi-border p-6 shadow-sm">
@@ -226,10 +334,20 @@
                         <i class="fa-brands fa-whatsapp text-sm"></i> Chat CS mengenai Pesanan ini
                     </a>
 
-                    @if($order->payment_status === 'unpaid')
-                        <a href="{{ route('checkout.success', $order->order_number) }}" class="bg-kopi-accent hover:bg-kopi-accent-light text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-colors">
-                            Lihat Rekening Pembayaran
-                        </a>
+                    @if($order->payment_status !== 'paid')
+                        @if(in_array($order->payment_method, ['qris', 'doku', 'doku_qris']))
+                            <a href="#qris-payment-section" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow inline-flex items-center gap-1.5">
+                                <i class="fa-solid fa-qrcode"></i> Lihat QRIS Pembayaran
+                            </a>
+                        @elseif($order->payment_method === 'doku_va')
+                            <a href="{{ route('doku.pay', $order->order_number) }}" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow inline-flex items-center gap-1.5">
+                                <i class="fa-solid fa-bolt"></i> Buka Virtual Account
+                            </a>
+                        @else
+                            <a href="{{ route('checkout.success', $order->order_number) }}" class="bg-kopi-accent hover:bg-kopi-accent-light text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-colors">
+                                Lihat Rekening Pembayaran
+                            </a>
+                        @endif
                     @endif
                 </div>
 
@@ -239,9 +357,41 @@
 
     </main>
 
-    <footer class="bg-kopi-dark text-stone-400 py-6 text-center text-xs border-t border-kopi-medium/30 mt-12">
-        <p>&copy; {{ date('Y') }} KOPIKITA Roastery & Store. Seluruh Hak Cipta Dilindungi.</p>
-    </footer>
+    @include('landing_pages.partials.footer')
+
+    @if(in_array($order->payment_method, ['qris', 'doku', 'doku_qris', 'doku_va']) && $order->payment_status !== 'paid')
+        <script>
+            // Live Polling Pengecekan Status Pembayaran DOKU / QRIS
+            const checkUrl = "{{ route('doku.check_status', $order->order_number) }}";
+            let pollAttempts = 0;
+
+            const pollInterval = setInterval(() => {
+                pollAttempts++;
+                if (pollAttempts > 180) { // Berhenti polling setelah 15 menit
+                    clearInterval(pollInterval);
+                    return;
+                }
+
+                fetch(checkUrl)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.is_paid) {
+                            clearInterval(pollInterval);
+                            const badge = document.getElementById('polling-badge');
+                            if (badge) {
+                                badge.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600 text-base"></i> <span class="text-emerald-700 font-bold">Pembayaran Berhasil Diverifikasi! Memuat...</span>';
+                                badge.classList.remove('border-stone-200');
+                                badge.classList.add('border-emerald-300', 'bg-emerald-50');
+                            }
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        }
+                    })
+                    .catch(() => {});
+            }, 4000);
+        </script>
+    @endif
 
 </body>
 </html>

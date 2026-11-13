@@ -322,19 +322,70 @@
 
                         <div class="space-y-3" id="payment-options-container">
                             
-                            <!-- Transfer Bank -->
+                            <!-- QRIS DOKU Payment Gateway (Otomatis & Langsung Muncul QR) -->
                             <label class="payment-card block border-2 border-kopi-accent bg-kopi-cream/40 rounded-xl p-4 cursor-pointer hover:border-kopi-accent transition-all">
-                                <input type="radio" name="payment_method" value="bank_transfer" checked onchange="handlePaymentChange(this)" class="sr-only">
+                                <input type="radio" name="payment_method" value="qris" checked onchange="handlePaymentChange(this)" class="sr-only">
+                                <div class="flex items-start gap-3.5">
+                                    <div class="w-10 h-10 rounded-lg bg-red-600 text-white flex items-center justify-center text-lg flex-shrink-0 shadow-sm">
+                                        <i class="fa-solid fa-qrcode"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-bold text-sm text-kopi-dark">QRIS (DOKU Payment Gateway)</span>
+                                                <span class="text-[10px] font-bold bg-red-600 text-white px-2 py-0.5 rounded tracking-wider">QRIS</span>
+                                            </div>
+                                            <span class="text-xs font-semibold bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                                <i class="fa-solid fa-bolt text-[10px]"></i> QR Langsung Muncul
+                                            </span>
+                                        </div>
+                                        <p class="text-xs text-stone-600 mt-1">
+                                            Scan langsung dari <strong>BCA Mobile, Livin' Mandiri, BRImo, BNI, GoPay, OVO, DANA, ShopeePay</strong>. Kode QRIS langsung tampil di layar pesanan Anda <em>(tanpa perlu buka/install aplikasi DOKU)</em>.
+                                        </p>
+                                        <div class="flex flex-wrap items-center gap-1.5 mt-2.5 pt-2 border-t border-stone-200/60 text-[11px] text-stone-600">
+                                            <span class="bg-white px-2 py-0.5 rounded border border-stone-200 font-medium">BCA Mobile</span>
+                                            <span class="bg-white px-2 py-0.5 rounded border border-stone-200 font-medium">Livin Mandiri</span>
+                                            <span class="bg-white px-2 py-0.5 rounded border border-stone-200 font-medium">BRImo</span>
+                                            <span class="bg-white px-2 py-0.5 rounded border border-stone-200 font-medium">BNI Mobile</span>
+                                            <span class="bg-white px-2 py-0.5 rounded border border-stone-200 font-medium">GoPay</span>
+                                            <span class="bg-white px-2 py-0.5 rounded border border-stone-200 font-medium">OVO</span>
+                                            <span class="bg-white px-2 py-0.5 rounded border border-stone-200 font-medium">DANA</span>
+                                            <span class="bg-white px-2 py-0.5 rounded border border-stone-200 font-medium">ShopeePay</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Virtual Account DOKU -->
+                            <label class="payment-card block border-2 border-kopi-border rounded-xl p-4 cursor-pointer hover:border-kopi-accent transition-all">
+                                <input type="radio" name="payment_method" value="doku_va" onchange="handlePaymentChange(this)" class="sr-only">
+                                <div class="flex items-start gap-3.5">
+                                    <div class="w-10 h-10 rounded-lg bg-white border border-kopi-border flex items-center justify-center text-kopi-accent text-lg flex-shrink-0">
+                                        <i class="fa-solid fa-credit-card"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-bold text-sm text-kopi-dark">Virtual Account Bank (DOKU)</span>
+                                            <span class="text-xs font-semibold bg-stone-100 text-stone-700 px-2 py-0.5 rounded-full">Otomatis</span>
+                                        </div>
+                                        <p class="text-xs text-stone-500 mt-0.5">BCA Virtual Account, Mandiri, BRI, BNI, Permata.</p>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Transfer Bank Manual -->
+                            <label class="payment-card block border-2 border-kopi-border rounded-xl p-4 cursor-pointer hover:border-kopi-accent transition-all">
+                                <input type="radio" name="payment_method" value="bank_transfer" onchange="handlePaymentChange(this)" class="sr-only">
                                 <div class="flex items-start gap-3.5">
                                     <div class="w-10 h-10 rounded-lg bg-white border border-kopi-border flex items-center justify-center text-kopi-accent text-lg flex-shrink-0">
                                         <i class="fa-solid fa-building-columns"></i>
                                     </div>
                                     <div class="flex-1">
                                         <div class="flex items-center justify-between">
-                                            <span class="font-bold text-sm text-kopi-dark">Transfer Bank Otomatis / Manual</span>
-                                            <span class="text-xs font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">Direkomendasikan</span>
+                                            <span class="font-bold text-sm text-kopi-dark">Transfer Rekening KOPIKITA (Manual)</span>
+                                            <span class="text-xs font-semibold bg-stone-100 text-stone-700 px-2 py-0.5 rounded-full">Manual</span>
                                         </div>
-                                        <p class="text-xs text-stone-500 mt-0.5">BCA, Mandiri, BRI, BNI (Rekening ditampilkan setelah konfirmasi).</p>
+                                        <p class="text-xs text-stone-500 mt-0.5">BCA, Mandiri (Rekening ditampilkan setelah checkout).</p>
                                         
                                         @if($bankAccounts->isNotEmpty())
                                             <div class="mt-3 pt-3 border-t border-stone-200/60 grid grid-cols-2 gap-2 text-xs">
@@ -346,20 +397,6 @@
                                                 @endforeach
                                             </div>
                                         @endif
-                                    </div>
-                                </div>
-                            </label>
-
-                            <!-- QRIS / E-Wallet -->
-                            <label class="payment-card block border-2 border-kopi-border rounded-xl p-4 cursor-pointer hover:border-kopi-accent transition-all">
-                                <input type="radio" name="payment_method" value="qris" onchange="handlePaymentChange(this)" class="sr-only">
-                                <div class="flex items-start gap-3.5">
-                                    <div class="w-10 h-10 rounded-lg bg-white border border-kopi-border flex items-center justify-center text-kopi-accent text-lg flex-shrink-0">
-                                        <i class="fa-solid fa-qrcode"></i>
-                                    </div>
-                                    <div class="flex-1">
-                                        <span class="font-bold text-sm text-kopi-dark block">QRIS (GoPay, OVO, Dana, ShopeePay)</span>
-                                        <p class="text-xs text-stone-500 mt-0.5">Scan kode QRIS instan dari semua aplikasi e-wallet & mobile banking.</p>
                                     </div>
                                 </div>
                             </label>
@@ -483,10 +520,8 @@
 
     </main>
 
-    <!-- Footer Simple -->
-    <footer class="bg-kopi-dark text-stone-400 py-6 text-center text-xs border-t border-kopi-medium/30 mt-12">
-        <p>&copy; {{ date('Y') }} KOPIKITA Roastery & Store. Seluruh Hak Cipta Dilindungi.</p>
-    </footer>
+    <!-- Footer KopiKita -->
+    @include('landing_pages.partials.footer')
 
     <!-- Interactive JS for Shipping & Saved Addresses -->
     <script>

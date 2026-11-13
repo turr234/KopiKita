@@ -56,33 +56,35 @@ class OrderStatusHistorieController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(order_status_historie $id)
+    public function edit($id)
     {
         $order_status_historie = order_status_historie::findOrFail($id);
-        return view('order_items.edit', compact($order_status_historie));
+        return view('order_status_histories.edit', compact('order_status_historie'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, order_status_historie $id)
+    public function update(Request $request, $id)
     {
-        $request->validate([
-            'order_id' => 'required|string',
+        $validated = $request->validate([
+            'order_id' => 'required',
             'status' => 'required|string',
             'description' => 'required|string',
-            'changed_by' => 'required|string'
+            'change_by' => 'nullable|string'
         ]);
         $order_status_historie = order_status_historie::findOrFail($id);
-        $order_status_historie->update($request->all());
-        return redirect()->route('order_items.index')->with('success', 'Data Berhasil Diupdate');
+        $order_status_historie->update($validated);
+        return redirect()->route('order_status_histories.index')->with('success', 'Data Berhasil Diupdate');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(order_status_historie $order_status_historie)
+    public function destroy($id)
     {
-        //
+        $order_status_historie = order_status_historie::findOrFail($id);
+        $order_status_historie->delete();
+        return redirect()->route('order_status_histories.index')->with('success', 'Data Berhasil Dihapus');
     }
 }

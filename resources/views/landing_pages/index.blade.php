@@ -120,7 +120,6 @@
                 <!-- Desktop Menu Links -->
                 <div class="hidden md:flex space-x-7 items-center">
                     <a href="#katalog" class="text-kopi-medium hover:text-kopi-accent font-semibold text-sm transition-colors">Semua Produk</a>
-                    <a href="#biji-kopi" class="text-kopi-medium hover:text-kopi-accent font-semibold text-sm transition-colors">Biji Kopi</a>
                     <a href="#ready-to-drink" class="text-kopi-medium hover:text-kopi-accent font-semibold text-sm transition-colors">Siap Minum</a>
                     <a href="#merchandise" class="text-kopi-medium hover:text-kopi-accent font-semibold text-sm transition-colors">Alat Seduh</a>
                     <a href="{{ route('orders.my_orders') }}" class="text-kopi-medium hover:text-kopi-accent font-semibold text-sm transition-colors">Pesanan Saya</a>
@@ -435,6 +434,9 @@
             </div>
         </div>
     </section>
+
+    <!-- Footer KopiKita -->
+    @include('landing_pages.partials.footer')
 
     <!-- Interactive Slide-over Shopping Cart Drawer -->
     <div id="cart-modal-backdrop" onclick="toggleCart()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden transition-opacity"></div>

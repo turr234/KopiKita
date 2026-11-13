@@ -68,30 +68,32 @@ class ProductImageController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, product_image $id)
+    public function update(Request $request, $id)
     {
-        $request->validate([
-            'product_id' => 'required|string',
-            'image' => 'required|file|max:255|mimes:jpeg,jpg,png,gif',
+        $validated = $request->validate([
+            'product_id' => 'required',
+            'image' => 'nullable|file|max:2048|mimes:jpeg,jpg,png,gif',
             'is_primary' => 'required|boolean',
-            'sort_order' => 'required|string'
+            'sort_order' => 'required|numeric'
         ]);
         $product_image = product_image::findOrFail($id);
-        $product_image->update($request->all());
 
         if ($request->hasFile('image')) {
             $filePath = $request->file('image')->store('images', 'public');
-            $input = $request->all();
-            $input['image'] = $filePath;
+            $validated['image'] = $filePath;
         }
-        return redirect()->route('product_images.index')->with('success', 'Data Produk Berhasil Diupdate');
+        $product_image->update($validated);
+
+        return redirect()->route('product_images.index')->with('success', 'Data Foto Produk Berhasil Diupdate');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(product_image $product_image)
+    public function destroy($id)
     {
-        //
+        $product_image = product_image::findOrFail($id);
+        $product_image->delete();
+        return redirect()->route('product_images.index')->with('success', 'Data Foto Berhasil Dihapus');
     }
 }

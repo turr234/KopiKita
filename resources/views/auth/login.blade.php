@@ -138,25 +138,6 @@
                 </button>
             </form>
 
-            <!-- Akun Cepat / Demo Helper Box -->
-            <div class="mt-6 pt-5 border-t border-stone-100">
-                <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider block text-center mb-2.5">
-                    1-Klik Masuk Akun Uji Coba:
-                </span>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                    <button type="button" onclick="fillCredentials('admin@gmail.com', 'AkuAdmin123!')" 
-                        class="p-2.5 bg-stone-50 hover:bg-stone-100 border border-kopi-border rounded-xl text-left transition-colors">
-                        <span class="font-bold text-kopi-dark block">Admin Toko</span>
-                        <span class="text-[10px] text-stone-500">admin@gmail.com</span>
-                    </button>
-                    <button type="button" onclick="fillCredentials('staff@gmail.com', 'StaffToko123!')" 
-                        class="p-2.5 bg-stone-50 hover:bg-stone-100 border border-kopi-border rounded-xl text-left transition-colors">
-                        <span class="font-bold text-kopi-dark block">Staff / Karyawan</span>
-                        <span class="text-[10px] text-stone-500">staff@gmail.com</span>
-                    </button>
-                </div>
-            </div>
-
             <!-- Link Registrasi -->
             <div class="mt-6 text-center text-xs text-stone-600">
                 Belum memiliki akun KopiKita? 
@@ -174,11 +155,6 @@
     </footer>
 
     <script>
-        function fillCredentials(email, password) {
-            document.getElementById('email').value = email;
-            document.getElementById('password').value = password;
-        }
-
         function togglePasswordVisibility() {
             const pass = document.getElementById('password');
             const icon = document.getElementById('toggle-password-icon');

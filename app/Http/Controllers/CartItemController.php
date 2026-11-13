@@ -58,7 +58,7 @@ class CartItemController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(cart_item $id)
+    public function edit($id)
     {
         $cart_item = cart_item::findOrFail($id);
         return view('cart_items.edit', compact('cart_item'));
@@ -67,13 +67,16 @@ class CartItemController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, cart_item $id)
+    public function update(Request $request, $id)
     {
-        $request->validate([
-
+        $validated = $request->validate([
+            'cart_id' => 'required',
+            'product_id' => 'required',
+            'quantity' => 'required|numeric|min:1',
+            'price' => 'required|numeric|min:0',
         ]);
         $cart_item = cart_item::findOrFail($id);
-        $cart_item->update($request->all());
+        $cart_item->update($validated);
 
         return redirect()->route('cart_items.index')->with('success', 'Data Berhasil Diperbarui');
     }
@@ -81,8 +84,10 @@ class CartItemController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(cart_item $cart_item)
+    public function destroy($id)
     {
-        //
+        $cart_item = cart_item::findOrFail($id);
+        $cart_item->delete();
+        return redirect()->route('cart_items.index')->with('success', 'Data Berhasil Dihapus');
     }
 }

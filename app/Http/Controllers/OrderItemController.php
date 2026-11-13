@@ -69,7 +69,7 @@ class OrderItemController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(order_item $id)
+    public function edit($id)
     {
         $order_item = order_item::findOrFail($id);
         return view('order_items.edit', compact('order_item'));
@@ -78,28 +78,33 @@ class OrderItemController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, order_item $id)
+    public function update(Request $request, $id)
     {
-        $request->validate([
-            'order_id' => 'required|string',
-            'product_id' => 'required|string',
+        $validated = $request->validate([
+            'order_id' => 'required',
+            'product_id' => 'required',
             'product_name' => 'required|string|max:255',
-            'product_sku' => 'required|string|max:50',
-            'product_image' => 'required|file|max:255|mimes:jpeg,jpg,png,gif',
-            'price' => 'required|string',
-            'quantity' => 'required|string',
-            'subtotal' => 'required|string'
+            'product_sku' => 'nullable|string|max:50',
+            'product_image' => 'nullable|file|max:2048|mimes:jpeg,jpg,png,gif',
+            'price' => 'required|numeric',
+            'quantity' => 'required|numeric|min:1',
+            'subtotal' => 'required|numeric'
         ]);
+
         $order_item = order_item::findOrFail($id);
-        $order_item->update($request->all());
+        if ($request->hasFile('product_image')) {
+            $validated['product_image'] = $request->file('product_image')->store('product_image', 'public');
+        }
+        $order_item->update($validated);
         return redirect()->route('order_items.index')->with('success', 'Data Berhasil Diupdate');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(order_item $order_item)
+    public function destroy($id)
     {
+        $order_item = order_item::findOrFail($id);
         $order_item->delete();
         return redirect()->route('order_items.index')->with('success', 'Data Berhasil Dihapus');
     }

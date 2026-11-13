@@ -76,18 +76,23 @@ class ReviewController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, review $id)
+    public function update(Request $request, $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             'product_id' => 'required|exists:products,id',
             'order_item_id' => 'required|exists:order_items,id',
-            'rating' => 'required|string',
+            'rating' => 'required|numeric|min:1|max:5',
             'review' => 'required|string',
-            'image' => 'required|file|max:255|mimes:jpeg,jpg,png,gif',
+            'image' => 'nullable|file|max:2048|mimes:jpeg,jpg,png,gif',
             'is_visible' => 'required|boolean'
         ]);
         $review = review::findOrFail($id);
-        $review->update($request->all());
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('images', 'public');
+        }
+
+        $review->update($validated);
 
         return redirect()->route('reviews.index')->with('success', 'Data Berhasil Diperbarui');
     }
@@ -95,8 +100,9 @@ class ReviewController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(review $review)
+    public function destroy($id)
     {
+        $review = review::findOrFail($id);
         $review->delete();
         return redirect()->route('reviews.index')->with('success', 'Data Berhasil Dihapus');
     }

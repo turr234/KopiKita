@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'doku' => [
+        'client_id' => env('CLIENT_ID', env('DOKU_CLIENT_ID')),
+        'api_key' => env('API_KEY', env('DOKU_API_KEY')),
+        'base_url' => env('BASE_URL', env('DOKU_BASE_URL', 'https://api-sandbox.doku.com')),
+    ],
+
 ];

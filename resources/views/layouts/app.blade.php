@@ -260,16 +260,16 @@
           <div class="sidebar-profile-name text-truncate" style="max-width: 140px;">{{ Auth::user()->name }}</div>
           @php
             $specialRole = Auth::user()->roles->pluck('name')->first(function($r) {
-                return in_array($r, ['admin toko a', 'admin toko b', 'admin toko c', 'admin', 'staff', 'admin toko']);
-            }) ?? Auth::user()->roles->first()->name ?? 'User';
+                return in_array($r, ['admin toko a', 'admin toko b', 'admin toko c', 'admin', 'super admin', 'staff', 'admin toko', 'karyawan']);
+            }) ?? Auth::user()->roles->first()?->name ?? 'User';
 
             $badgeClass = match($specialRole) {
                 'admin toko a' => 'badge bg-success',
                 'admin toko b' => 'badge bg-primary',
                 'admin toko c' => 'badge bg-warning text-dark',
-                'admin'        => 'badge bg-danger',
+                'admin', 'super admin' => 'badge bg-danger',
                 'admin toko'   => 'badge bg-info text-dark',
-                'staff'        => 'badge bg-secondary',
+                'staff', 'karyawan' => 'badge bg-secondary',
                 default        => 'badge bg-light text-dark border'
             };
 
@@ -277,9 +277,9 @@
                 'admin toko a' => 'Admin Toko A',
                 'admin toko b' => 'Admin Toko B',
                 'admin toko c' => 'Admin Toko C',
-                'admin'        => 'Super Admin',
+                'admin', 'super admin' => 'Super Admin',
                 'admin toko'   => 'Admin Toko',
-                'staff'        => 'Staff Toko',
+                'staff', 'karyawan' => 'Staff Toko',
                 default        => ucwords($specialRole)
             };
           @endphp

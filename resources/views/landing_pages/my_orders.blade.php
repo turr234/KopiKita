@@ -160,10 +160,20 @@
                                 <a href="{{ route('orders.my_order_detail', $order->order_number) }}" class="bg-stone-100 hover:bg-stone-200 text-kopi-dark text-xs font-semibold px-4 py-2 rounded-xl transition-colors">
                                     Lihat Detail & Lacak
                                 </a>
-                                @if($order->payment_status === 'unpaid')
-                                    <a href="{{ route('checkout.success', $order->order_number) }}" class="bg-kopi-accent hover:bg-kopi-accent-light text-white text-xs font-bold px-4 py-2 rounded-xl transition-colors">
-                                        Bayar Sekarang
-                                    </a>
+                                @if($order->payment_status !== 'paid')
+                                    @if(in_array($order->payment_method, ['qris', 'doku', 'doku_qris']))
+                                        <a href="{{ route('orders.my_order_detail', $order->order_number) }}#qris-payment-section" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-xs inline-flex items-center gap-1.5">
+                                            <i class="fa-solid fa-qrcode"></i> Bayar via QRIS
+                                        </a>
+                                    @elseif($order->payment_method === 'doku_va')
+                                        <a href="{{ route('doku.pay', $order->order_number) }}" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-xs inline-flex items-center gap-1.5">
+                                            <i class="fa-solid fa-bolt"></i> Buka VA
+                                        </a>
+                                    @else
+                                        <a href="{{ route('checkout.success', $order->order_number) }}" class="bg-kopi-accent hover:bg-kopi-accent-light text-white text-xs font-bold px-4 py-2 rounded-xl transition-colors">
+                                            Bayar Sekarang
+                                        </a>
+                                    @endif
                                 @endif
                             </div>
                         </div>
@@ -179,9 +189,7 @@
 
     </main>
 
-    <footer class="bg-kopi-dark text-stone-400 py-6 text-center text-xs border-t border-kopi-medium/30 mt-12">
-        <p>&copy; {{ date('Y') }} KOPIKITA Roastery & Store. Seluruh Hak Cipta Dilindungi.</p>
-    </footer>
+    @include('landing_pages.partials.footer')
 
 </body>
 </html>
