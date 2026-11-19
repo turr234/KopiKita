@@ -39,31 +39,31 @@
         }
     </script>
 </head>
-<body class="font-sans bg-kopi-cream text-kopi-dark antialiased min-h-screen flex flex-col selection:bg-kopi-accent selection:text-white">
+<body class="font-sans bg-kopi-cream text-kopi-dark antialiased min-h-screen flex flex-col selection:bg-kopi-accent selection:text-white overflow-x-hidden w-full relative">
 
     <!-- Top Navigation Header -->
     <header class="bg-white border-b border-kopi-border sticky top-0 z-30 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <a href="{{ route('landing_pages.index') }}" class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-kopi-espresso flex items-center justify-center text-kopi-accent shadow-md">
-                    <i class="fa-solid fa-mug-hot text-xl"></i>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3">
+            <a href="{{ route('landing_pages.index') }}" class="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-kopi-espresso flex items-center justify-center text-kopi-accent shadow-md shrink-0">
+                    <i class="fa-solid fa-mug-hot text-lg sm:text-xl"></i>
                 </div>
-                <div>
-                    <span class="font-serif font-bold text-2xl tracking-wider text-kopi-dark block leading-none">KOPIKITA</span>
-                    <span class="text-[10px] uppercase font-bold tracking-widest text-kopi-accent">Checkout Pemesanan</span>
+                <div class="shrink-0">
+                    <span class="font-serif font-bold text-xl sm:text-2xl tracking-wider text-kopi-dark block leading-none">KOPIKITA</span>
+                    <span class="hidden sm:block text-[10px] uppercase font-bold tracking-widest text-kopi-accent mt-0.5">Checkout Pemesanan</span>
                 </div>
             </a>
-            <div class="flex items-center gap-3 sm:gap-4">
-                <a href="{{ route('landing_pages.index') }}" class="text-xs sm:text-sm font-semibold text-kopi-medium hover:text-kopi-accent transition-colors flex items-center gap-1.5">
-                    <i class="fa-solid fa-arrow-left"></i> Kembali Belanja
+            <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                <a href="{{ route('landing_pages.index') }}" class="h-9 sm:h-10 text-xs sm:text-sm font-semibold text-kopi-medium hover:text-kopi-accent transition-colors flex items-center gap-1.5 px-3 rounded-xl hover:bg-stone-50" title="Kembali Belanja">
+                    <i class="fa-solid fa-arrow-left"></i> <span class="hidden sm:inline">Kembali</span>
                 </a>
-                <a href="{{ route('orders.my_orders') }}" class="text-xs sm:text-sm font-semibold bg-kopi-cream hover:bg-stone-200/70 border border-kopi-border px-3.5 py-2 rounded-xl text-kopi-dark transition-colors">
-                    <i class="fa-solid fa-receipt mr-1 text-kopi-accent"></i> Pesanan Saya
+                <a href="{{ route('orders.my_orders') }}" class="h-9 sm:h-10 text-xs sm:text-sm font-semibold bg-kopi-cream hover:bg-stone-200/70 border border-kopi-border px-3 sm:px-3.5 rounded-xl text-kopi-dark transition-colors flex items-center gap-1.5" title="Pesanan Saya">
+                    <i class="fa-solid fa-receipt text-kopi-accent"></i> <span class="hidden md:inline">Pesanan Saya</span>
                 </a>
                 <form action="{{ route('logout') }}" method="POST" class="inline">
                     @csrf
-                    <button type="submit" class="text-xs font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5" title="Logout dari akun">
-                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar
+                    <button type="submit" class="h-9 sm:h-10 text-xs font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 px-3 rounded-xl transition-colors flex items-center gap-1.5" title="Logout dari akun">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> <span class="hidden sm:inline">Keluar</span>
                     </button>
                 </form>
             </div>

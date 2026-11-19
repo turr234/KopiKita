@@ -40,6 +40,26 @@
     </script>
 
     <style>
+        /* Mencegah scroll-x liar pada seluruh halaman */
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw;
+            width: 100%;
+            position: relative;
+        }
+
+        /* Utility Scroll-X Halus Tanpa Scrollbar Kasar */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+            -webkit-overflow-scrolling: touch;
+        }
+
         .glass-nav {
             background: rgba(250, 246, 240, 0.94);
             backdrop-filter: blur(12px);
@@ -73,97 +93,144 @@
 
         /* Cart drawer transition simulation */
         #cart-drawer {
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease;
         }
     </style>
 </head>
-<body class="font-sans bg-kopi-cream text-kopi-dark antialiased min-h-screen flex flex-col selection:bg-kopi-accent selection:text-white">
+<body class="font-sans bg-kopi-cream text-kopi-dark antialiased min-h-screen flex flex-col selection:bg-kopi-accent selection:text-white overflow-x-hidden w-full relative">
+@php
+    $store = $storeSetting ?? \App\Models\store_setting::first();
+    $rawStoreName = !empty($store->store_name) ? $store->store_name : 'KOPIKITA';
+    // Bersihkan nama brand dari imbuhan cabang seperti "- Toko A (Group Bandung)"
+    $brandParts = explode('-', $rawStoreName);
+    $cleanBrand = trim($brandParts[0]);
+    $storeName = (!empty($cleanBrand) && strtolower($cleanBrand) !== 'kopikita') ? $cleanBrand : 'KOPIKITA';
+    $rawTagline = !empty($store->tagline) ? $store->tagline : 'Roastery & Store';
+    $tagline = str_contains(strtolower($rawTagline), 'bandung') ? 'Roastery & Store' : $rawTagline;
+    $rawWa = !empty($store->whatsapp) ? $store->whatsapp : '6283803943909';
+    $cleanWa = preg_replace('/[^0-9]/', '', $rawWa);
+    if (str_starts_with($cleanWa, '0')) {
+        $cleanWa = '62' . substr($cleanWa, 1);
+    }
+    if (empty($cleanWa)) {
+        $cleanWa = '6283803943909';
+    }
+@endphp
 
     <!-- Top Announcement Bar -->
-    <div class="bg-kopi-dark text-kopi-cream py-2 px-4 text-xs md:text-sm font-medium border-b border-kopi-medium/30">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <span class="bg-kopi-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wider uppercase">Promo</span>
-                <span>Gratis Ongkir se-Indonesia untuk pembelian di atas Rp 150.000! Gunakan kode: <strong>KOPIASLI</strong></span>
+    <div class="bg-[#1c120c] text-stone-300 py-2 px-4 text-xs font-medium border-b border-white/5">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-4">
+            <div class="flex items-center gap-2 text-center sm:text-left">
+                <span class="bg-gradient-to-r from-kopi-accent to-[#b57a46] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full tracking-wider uppercase shadow-xs">Promo Spesial</span>
+                <span class="text-stone-300">
+                    Gratis Ongkir se-Indonesia > Rp 150.000! Gunakan kode: 
+                    <button type="button" onclick="copyPromoCode('KOPIASLI')" class="font-bold underline text-kopi-accent-light hover:text-white cursor-pointer ml-1 inline-flex items-center gap-1 group" title="Klik untuk salin kode voucher">
+                        <span>KOPIASLI</span>
+                        <i class="fa-regular fa-copy text-[10px] group-hover:scale-110 transition-transform"></i>
+                    </button>
+                </span>
             </div>
-            <div class="hidden md:flex items-center gap-6 text-xs text-kopi-cream/80">
-                <a href="{{ route('orders.my_orders') }}" class="hover:text-kopi-accent transition-colors"><i class="fa-solid fa-truck-fast mr-1"></i> Lacak Pesanan</a>
-                <a href="#bantuan" class="hover:text-kopi-accent transition-colors"><i class="fa-solid fa-headset mr-1"></i> Bantuan</a>
+            <div class="hidden md:flex items-center gap-4 text-xs text-stone-400">
+                <a href="{{ route('orders.my_orders') }}" class="hover:text-kopi-accent-light transition-colors flex items-center gap-1.5"><i class="fa-solid fa-truck-fast text-kopi-accent"></i> Lacak Pesanan</a>
+                <span class="text-stone-700">|</span>
+                <a href="https://wa.me/{{ $cleanWa }}?text={{ urlencode('Halo Admin ' . $storeName . ', saya butuh bantuan seputar pemesanan...') }}" target="_blank" rel="noopener noreferrer" class="hover:text-emerald-400 transition-colors flex items-center gap-1.5"><i class="fa-brands fa-whatsapp text-emerald-400"></i> Bantuan CS</a>
+                <span class="text-stone-700">|</span>
+                @auth
+                <a href="{{ route('orders.my_orders') }}" class="hover:text-white transition-colors flex items-center gap-1.5 text-stone-300">
+                    <i class="fa-solid fa-user-check text-kopi-accent"></i> <span>Akun: <strong class="text-white">{{ Auth::user()->name }}</strong></span>
+                </a>
+                @else
+                <a href="{{ route('login') }}" class="hover:text-white transition-colors flex items-center gap-1.5 text-kopi-accent-light font-semibold">
+                    <i class="fa-solid fa-arrow-right-to-bracket text-kopi-accent"></i> <span>Login / Masuk</span>
+                </a>
+                @endauth
             </div>
         </div>
     </div>
 
     <!-- Main Navigation Header -->
-    <nav class="sticky top-0 z-40 glass-nav transition-all duration-300">
+    <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-kopi-border/70 shadow-sm transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
-                <!-- Brand / Logo -->
-                <div class="flex items-center gap-3 cursor-pointer">
-                    <div class="w-11 h-11 rounded-xl bg-kopi-espresso flex items-center justify-center text-kopi-accent shadow-md">
-                        <i class="fa-solid fa-mug-hot text-2xl"></i>
-                    </div>
-                    <div>
-                        <span class="font-serif font-bold text-2xl tracking-wider text-kopi-dark block leading-none">KOPIKITA</span>
-                        <span class="text-[10px] uppercase font-bold tracking-widest text-kopi-accent">Roastery & Store</span>
-                    </div>
+            <div class="flex items-center justify-between h-16 sm:h-20 gap-3 sm:gap-6">
+                
+                <!-- 1. Left: Brand Logo (Bersih & Elegan) -->
+                <div class="flex items-center shrink-0">
+                    <a href="{{ route('landing_pages.index') }}" class="flex items-center gap-2.5 sm:gap-3 group" title="KOPIKITA - Official Roastery & Store">
+                        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-kopi-espresso to-[#251510] flex items-center justify-center text-kopi-accent shadow-md shadow-kopi-dark/10 group-hover:scale-105 transition-all border border-kopi-accent/20 shrink-0">
+                            <i class="fa-solid fa-mug-hot text-xl sm:text-2xl"></i>
+                        </div>
+                        <div class="shrink-0 flex flex-col justify-center">
+                            <span class="font-serif font-bold text-xl sm:text-2xl lg:text-3xl tracking-wider text-kopi-dark block leading-none">KOPIKITA</span>
+                            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-widest text-kopi-accent block mt-1">ROASTERY & STORE</span>
+                        </div>
+                    </a>
                 </div>
 
-                <!-- Search Bar -->
-                <div class="hidden lg:flex flex-1 max-w-md mx-8">
-                    <div class="relative w-full">
-                        <input type="text" placeholder="Cari biji kopi Arabica, Robusta, Cold Brew, Drip Bag..." 
-                               class="w-full bg-white/90 border border-kopi-border rounded-full py-2.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-kopi-accent focus:border-transparent text-kopi-dark placeholder-stone-400 shadow-inner">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-stone-400"></i>
-                    </div>
+                <!-- 2. Center: Desktop Menu Navigation Links -->
+                <div class="hidden lg:flex items-center justify-center gap-1 xl:gap-2">
+                    <a href="#katalog" onclick="filterCategory('all', event)" class="px-3 py-2 rounded-xl text-xs xl:text-sm font-semibold text-stone-700 hover:text-kopi-dark hover:bg-stone-100 transition-all whitespace-nowrap">
+                        Semua Kopi
+                    </a>
+                    <a href="#katalog" onclick="filterCategory('single-origin', event)" class="px-3 py-2 rounded-xl text-xs xl:text-sm font-semibold text-stone-700 hover:text-kopi-dark hover:bg-stone-100 transition-all whitespace-nowrap">
+                        Single Origin
+                    </a>
+                    <a href="#katalog" onclick="filterCategory('house-blend', event)" class="px-3 py-2 rounded-xl text-xs xl:text-sm font-semibold text-stone-700 hover:text-kopi-dark hover:bg-stone-100 transition-all whitespace-nowrap">
+                        House Blend
+                    </a>
+                    <a href="#katalog" onclick="filterCategory('cold-brew-rtd', event)" class="hidden xl:inline-flex px-3 py-2 rounded-xl text-xs xl:text-sm font-semibold text-stone-700 hover:text-kopi-dark hover:bg-stone-100 transition-all whitespace-nowrap">
+                        Siap Minum
+                    </a>
+                    <a href="{{ route('orders.my_orders') }}" class="px-3 py-2 rounded-xl text-xs xl:text-sm font-semibold text-stone-700 hover:text-kopi-dark hover:bg-stone-100 transition-all whitespace-nowrap">
+                        Pesanan Saya
+                    </a>
+                    <a href="#tentang" class="hidden 2xl:inline-flex px-3 py-2 rounded-xl text-xs xl:text-sm font-semibold text-stone-700 hover:text-kopi-dark hover:bg-stone-100 transition-all whitespace-nowrap">
+                        Tentang Kami
+                    </a>
                 </div>
 
-                <!-- Desktop Menu Links -->
-                <div class="hidden md:flex space-x-7 items-center">
-                    <a href="#katalog" class="text-kopi-medium hover:text-kopi-accent font-semibold text-sm transition-colors">Semua Produk</a>
-                    <a href="#ready-to-drink" class="text-kopi-medium hover:text-kopi-accent font-semibold text-sm transition-colors">Siap Minum</a>
-                    <a href="#merchandise" class="text-kopi-medium hover:text-kopi-accent font-semibold text-sm transition-colors">Alat Seduh</a>
-                    <a href="{{ route('orders.my_orders') }}" class="text-kopi-medium hover:text-kopi-accent font-semibold text-sm transition-colors">Pesanan Saya</a>
-                    <a href="#tentang" class="text-kopi-medium hover:text-kopi-accent font-semibold text-sm transition-colors">Tentang Kami</a>
-                </div>
-
-                <!-- E-Commerce Action Icons -->
-                <div class="flex items-center gap-3 sm:gap-4">
-                    <!-- Wishlist -->
-                    <button class="relative p-2.5 text-kopi-dark hover:text-kopi-accent hover:bg-stone-200/50 rounded-full transition-colors" title="Wishlist">
-                        <i class="fa-regular fa-heart text-xl"></i>
-                        <span class="absolute top-1 right-1 bg-kopi-accent text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">2</span>
+                <!-- 3. Right: Actions (Wishlist, Cart, Profile/Login, Mobile Menu) -->
+                <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
+                    
+                    <!-- Wishlist Button (sm+) -->
+                    <button type="button" onclick="toggleWishlistFilter()" id="headerWishlistBtn" class="hidden sm:flex relative h-10 w-10 rounded-full bg-stone-100/80 hover:bg-white border border-kopi-border/70 items-center justify-center text-stone-700 hover:text-red-500 transition-all shadow-sm shrink-0" title="Lihat Wishlist">
+                        <i id="headerWishlistIcon" class="fa-regular fa-heart text-sm"></i>
+                        <span id="wishlist-counter" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs">0</span>
                     </button>
 
-                    <!-- User Profile Dropdown -->
+                    <!-- Shopping Cart Button -->
+                    <button onclick="toggleCart()" class="relative h-10 flex items-center gap-2 bg-gradient-to-r from-kopi-espresso to-kopi-dark hover:from-[#2c1813] hover:to-black text-white px-3.5 sm:px-4 rounded-full font-medium shadow-sm hover:shadow transition-all group shrink-0">
+                        <i class="fa-solid fa-bag-shopping text-sm text-kopi-accent group-hover:scale-110 transition-transform"></i>
+                        <span class="hidden xl:inline text-xs font-semibold">Keranjang</span>
+                        <span id="cart-counter" class="bg-kopi-accent text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-xs">0</span>
+                    </button>
+
+                    <!-- User Profile Dropdown (Tampil saat sudah Login) -->
                     @auth
-                    <div class="relative" id="profile-dropdown-container">
-                        <button onclick="toggleProfileDropdown(event)" class="flex items-center gap-2 p-1.5 sm:px-3 sm:py-2 rounded-full border border-kopi-border bg-white hover:bg-stone-50 hover:border-kopi-accent text-kopi-dark transition-all focus:outline-none shadow-xs" title="Menu Akun">
-                            <div class="w-8 h-8 rounded-full bg-kopi-accent/20 flex items-center justify-center text-kopi-espresso font-bold text-xs">
+                    <div class="relative shrink-0" id="profile-dropdown-container">
+                        <button onclick="toggleProfileDropdown(event)" class="h-10 flex items-center gap-1.5 sm:gap-2 pl-1.5 pr-2.5 sm:pr-3 rounded-full border border-kopi-border/70 bg-stone-100/80 hover:bg-white text-kopi-dark transition-all focus:outline-none shadow-sm shrink-0" title="Akun: {{ Auth::user()->name }}">
+                            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-kopi-accent to-[#e2b58d] flex items-center justify-center text-white font-bold text-xs shadow-xs shrink-0">
                                 <i class="fa-solid fa-user"></i>
                             </div>
-                            <div class="hidden sm:block text-left text-xs leading-tight">
-                                <span class="font-bold block truncate max-w-[110px] text-kopi-dark">{{ Auth::user()->name }}</span>
-                                <span class="text-[10px] text-kopi-accent font-semibold uppercase">Akun Saya</span>
-                            </div>
-                            <i class="fa-solid fa-chevron-down text-[10px] text-stone-400 ml-0.5"></i>
+                            <span class="inline-block text-xs font-bold text-kopi-dark max-w-[75px] sm:max-w-[110px] truncate">{{ Auth::user()->name }}</span>
+                            <i class="fa-solid fa-chevron-down text-[9px] text-stone-400"></i>
                         </button>
 
                         <!-- Dropdown Menu Box -->
-                        <div id="profile-dropdown-menu" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-kopi-border py-2 z-50 transform origin-top-right transition-all">
+                        <div id="profile-dropdown-menu" class="hidden absolute right-0 mt-2 w-64 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-kopi-border py-2 z-50 transform origin-top-right transition-all">
                             <!-- User Info Header -->
-                            <div class="px-4 py-3 border-b border-stone-100 bg-kopi-cream/50 rounded-t-2xl">
+                            <div class="px-4 py-3 border-b border-stone-100 bg-kopi-cream/60 rounded-t-2xl">
                                 <p class="text-xs font-bold text-kopi-dark leading-tight">{{ Auth::user()->name }}</p>
                                 <p class="text-[11px] text-stone-500 truncate mt-0.5">{{ Auth::user()->email }}</p>
                                 <div class="mt-2 flex items-center gap-1.5">
-                                    <span class="text-[10px] font-bold uppercase tracking-wider bg-kopi-espresso text-kopi-cream px-2 py-0.5 rounded-full">
+                                    <span class="text-[9px] font-bold uppercase tracking-wider bg-kopi-espresso text-kopi-cream px-2 py-0.5 rounded-full">
                                         {{ Auth::user()->roles->first()->name ?? 'Pelanggan' }}
                                     </span>
                                 </div>
                             </div>
 
                             <!-- Menu Links -->
-                            <div class="py-2">
-                                <a href="{{ route('orders.my_orders') }}" class="flex items-center justify-between px-4 py-2.5 text-xs text-stone-700 hover:bg-kopi-cream hover:text-kopi-dark transition-colors font-medium">
+                            <div class="py-1.5">
+                                <a href="{{ route('orders.my_orders') }}" class="flex items-center justify-between px-4 py-2 text-xs text-stone-700 hover:bg-kopi-cream hover:text-kopi-dark transition-colors font-medium">
                                     <div class="flex items-center gap-2.5">
                                         <div class="w-7 h-7 rounded-lg bg-kopi-accent/15 text-kopi-accent flex items-center justify-center text-xs">
                                             <i class="fa-solid fa-receipt"></i>
@@ -173,7 +240,7 @@
                                     <i class="fa-solid fa-chevron-right text-[10px] text-stone-400"></i>
                                 </a>
 
-                                <button onclick="toggleProfileDropdown(); toggleCart();" class="w-full flex items-center justify-between px-4 py-2.5 text-xs text-stone-700 hover:bg-kopi-cream hover:text-kopi-dark transition-colors font-medium text-left">
+                                <button onclick="toggleProfileDropdown(); toggleCart();" class="w-full flex items-center justify-between px-4 py-2 text-xs text-stone-700 hover:bg-kopi-cream hover:text-kopi-dark transition-colors font-medium text-left">
                                     <div class="flex items-center gap-2.5">
                                         <div class="w-7 h-7 rounded-lg bg-kopi-accent/15 text-kopi-accent flex items-center justify-center text-xs">
                                             <i class="fa-solid fa-bag-shopping"></i>
@@ -184,9 +251,9 @@
                                 </button>
 
                                 @hasanyrole('admin|staff|admin toko|Admin Toko|admin toko a|admin toko b|admin toko c')
-                                <a href="{{ route('home') }}" class="flex items-center justify-between px-4 py-2.5 text-xs text-stone-700 hover:bg-kopi-cream hover:text-kopi-dark transition-colors font-medium">
+                                <a href="{{ route('home') }}" class="flex items-center justify-between px-4 py-2 text-xs text-stone-700 hover:bg-kopi-cream hover:text-kopi-dark transition-colors font-medium">
                                     <div class="flex items-center gap-2.5">
-                                        <div class="w-7 h-7 rounded-lg bg-stone-100 text-stone-600 flex items-center justify-center text-xs">
+                                        <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center text-xs">
                                             <i class="fa-solid fa-gauge"></i>
                                         </div>
                                         <span>Panel Admin</span>
@@ -211,66 +278,109 @@
                         </div>
                     </div>
                     @else
-                    <a href="{{ route('login') }}" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-kopi-dark hover:text-kopi-accent bg-white border border-kopi-border px-3.5 py-2 rounded-full shadow-xs hover:border-kopi-accent transition-all">
-                        <i class="fa-solid fa-arrow-right-to-bracket text-kopi-accent"></i> Masuk
+                    <!-- Tombol Login (Tampil Jelas untuk Pengunjung / Tamu di Semua Layar) -->
+                    <a href="{{ route('login') }}" class="inline-flex items-center gap-1.5 h-10 text-xs font-bold text-white bg-gradient-to-r from-kopi-espresso to-kopi-dark hover:from-[#2c1813] hover:to-black border border-kopi-dark px-3.5 sm:px-4 rounded-full shadow-sm hover:shadow transition-all shrink-0" title="Login ke akun Anda">
+                        <i class="fa-solid fa-arrow-right-to-bracket text-kopi-accent text-sm"></i> <span>Login</span>
                     </a>
                     @endauth
 
-                    <!-- Shopping Cart CTA -->
-                    <button onclick="toggleCart()" class="relative flex items-center gap-2.5 bg-kopi-espresso text-white px-4 py-2.5 rounded-full font-medium shadow-md hover:bg-kopi-dark transition-all transform hover:scale-105 active:scale-95">
-                        <i class="fa-solid fa-bag-shopping text-base text-kopi-accent"></i>
-                        <span class="text-xs sm:text-sm font-semibold">Keranjang</span>
-                        <span id="cart-counter" class="bg-kopi-accent text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
-                    </button>
-
-                    <!-- Mobile Hamburger -->
-                    <div class="md:hidden flex items-center">
-                        <button onclick="toggleMobileMenu()" class="text-kopi-dark hover:text-kopi-accent p-2 text-2xl focus:outline-none">
-                            <i class="fa-solid fa-bars"></i>
+                    <!-- Mobile Hamburger Menu Button (lg:hidden) -->
+                    <div class="lg:hidden flex items-center shrink-0">
+                        <button onclick="toggleMobileMenu()" class="h-10 w-10 rounded-xl bg-stone-100/80 hover:bg-white border border-kopi-border/70 flex items-center justify-center text-kopi-dark hover:text-kopi-accent transition-colors shadow-sm" title="Menu Navigasi">
+                            <i class="fa-solid fa-bars text-base"></i>
                         </button>
                     </div>
+
                 </div>
+
             </div>
         </div>
 
-        <!-- Mobile Navigation Menu Dropdown -->
-        <div id="mobile-menu-drawer" class="md:hidden hidden bg-white border-t border-kopi-border px-4 py-4 space-y-3 shadow-lg">
+        <!-- Mobile Navigation Menu Dropdown (Drawer) -->
+        <div id="mobile-menu-drawer" class="lg:hidden hidden bg-white border-t border-kopi-border/80 px-4 py-5 space-y-4 shadow-xl max-h-[85vh] overflow-y-auto">
+            <!-- Mobile Search Bar in Drawer -->
+            <div class="relative w-full">
+                <input type="text" 
+                       id="mobileSearchInput" 
+                       oninput="handleSearch(this.value)" 
+                       placeholder="Cari kopi Arabica, Robusta, Gayo..." 
+                       class="w-full bg-stone-100 border border-kopi-border/70 rounded-xl py-2.5 pl-9 pr-8 text-xs focus:outline-none focus:ring-2 focus:ring-kopi-accent/40 text-kopi-dark placeholder-stone-400">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-stone-400 text-xs"></i>
+            </div>
+
             @auth
-            <div class="flex items-center gap-3 pb-3 border-b border-stone-100">
-                <div class="w-10 h-10 rounded-full bg-kopi-accent/20 flex items-center justify-center text-kopi-espresso font-bold">
+            <!-- User Info Card in Mobile Drawer -->
+            <div class="flex items-center gap-3 p-3 bg-kopi-cream/70 rounded-2xl border border-kopi-border/60">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-kopi-accent to-[#e2b58d] flex items-center justify-center text-white font-bold shrink-0 shadow-xs">
                     <i class="fa-solid fa-user"></i>
                 </div>
-                <div>
-                    <p class="font-bold text-sm text-kopi-dark">{{ Auth::user()->name }}</p>
-                    <p class="text-xs text-stone-500">{{ Auth::user()->email }}</p>
+                <div class="min-w-0 flex-1">
+                    <p class="font-bold text-sm text-kopi-dark truncate">{{ Auth::user()->name }}</p>
+                    <p class="text-xs text-stone-500 truncate">{{ Auth::user()->email }}</p>
+                    <span class="inline-block mt-1 text-[9px] font-bold uppercase tracking-wider bg-kopi-espresso text-kopi-cream px-2 py-0.5 rounded-full">
+                        {{ Auth::user()->roles->first()->name ?? 'Pelanggan' }}
+                    </span>
                 </div>
             </div>
-            <div class="space-y-1 pt-1">
-                <a href="{{ route('orders.my_orders') }}" class="flex items-center gap-2.5 text-sm font-semibold text-kopi-dark hover:text-kopi-accent py-2">
+            @endauth
+
+            <!-- Mobile Navigation Links Grouped -->
+            <div class="space-y-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-stone-400 block px-2 mb-1">Kategori Produk</span>
+                <a href="#katalog" onclick="filterCategory('all', event); toggleMobileMenu();" class="flex items-center gap-2.5 text-sm font-semibold text-kopi-dark hover:text-kopi-accent hover:bg-stone-50 px-2.5 py-2 rounded-xl transition-colors">
+                    <i class="fa-solid fa-mug-hot text-kopi-accent w-5"></i> Semua Kopi
+                </a>
+                <a href="#katalog" onclick="filterCategory('single-origin', event); toggleMobileMenu();" class="flex items-center gap-2.5 text-sm font-semibold text-kopi-dark hover:text-kopi-accent hover:bg-stone-50 px-2.5 py-2 rounded-xl transition-colors">
+                    <i class="fa-solid fa-seedling text-kopi-accent w-5"></i> Single Origin
+                </a>
+                <a href="#katalog" onclick="filterCategory('house-blend', event); toggleMobileMenu();" class="flex items-center gap-2.5 text-sm font-semibold text-kopi-dark hover:text-kopi-accent hover:bg-stone-50 px-2.5 py-2 rounded-xl transition-colors">
+                    <i class="fa-solid fa-fire text-kopi-accent w-5"></i> House Blend
+                </a>
+                <a href="#katalog" onclick="filterCategory('cold-brew-rtd', event); toggleMobileMenu();" class="flex items-center gap-2.5 text-sm font-semibold text-kopi-dark hover:text-kopi-accent hover:bg-stone-50 px-2.5 py-2 rounded-xl transition-colors">
+                    <i class="fa-solid fa-bottle-water text-kopi-accent w-5"></i> Siap Minum
+                </a>
+            </div>
+
+            <div class="space-y-1 pt-3 border-t border-stone-100">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-stone-400 block px-2 mb-1">Layanan & Akun</span>
+                <button type="button" onclick="toggleWishlistFilter(); toggleMobileMenu();" class="w-full flex items-center justify-between text-sm font-semibold text-kopi-dark hover:text-kopi-accent hover:bg-stone-50 px-2.5 py-2 rounded-xl transition-colors text-left">
+                    <div class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-heart text-red-500 w-5"></i> Wishlist Saya
+                    </div>
+                    <span id="mobile-wishlist-counter" class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
+                </button>
+                <a href="{{ route('orders.my_orders') }}" class="flex items-center gap-2.5 text-sm font-semibold text-kopi-dark hover:text-kopi-accent hover:bg-stone-50 px-2.5 py-2 rounded-xl transition-colors">
                     <i class="fa-solid fa-receipt text-kopi-accent w-5"></i> Pesanan Saya
                 </a>
-                <a href="#katalog" onclick="toggleMobileMenu()" class="flex items-center gap-2.5 text-sm font-semibold text-kopi-dark hover:text-kopi-accent py-2">
-                    <i class="fa-solid fa-mug-hot text-kopi-accent w-5"></i> Semua Produk
+                <a href="#tentang" onclick="toggleMobileMenu();" class="flex items-center gap-2.5 text-sm font-semibold text-kopi-dark hover:text-kopi-accent hover:bg-stone-50 px-2.5 py-2 rounded-xl transition-colors">
+                    <i class="fa-solid fa-circle-info text-kopi-accent w-5"></i> Tentang Kami
                 </a>
+                <a href="https://wa.me/{{ $cleanWa }}?text={{ urlencode('Halo Admin ' . $storeName . ', saya butuh bantuan seputar pemesanan...') }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2.5 text-sm font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50/50 px-2.5 py-2 rounded-xl transition-colors">
+                    <i class="fa-brands fa-whatsapp text-emerald-500 w-5 text-base"></i> Bantuan CS WhatsApp
+                </a>
+            </div>
+
+            @auth
+            <div class="space-y-1 pt-3 border-t border-stone-100">
                 @hasanyrole('admin|staff|admin toko|Admin Toko|admin toko a|admin toko b|admin toko c')
-                <a href="{{ route('home') }}" class="flex items-center gap-2.5 text-sm font-semibold text-kopi-dark hover:text-kopi-accent py-2">
-                    <i class="fa-solid fa-gauge text-kopi-accent w-5"></i> Panel Admin
+                <a href="{{ route('home') }}" class="flex items-center gap-2.5 text-sm font-semibold text-amber-800 bg-amber-50 px-3 py-2 rounded-xl">
+                    <i class="fa-solid fa-gauge text-amber-700 w-5"></i> Masuk Panel Admin
                 </a>
                 @endhasanyrole
-                <form action="{{ route('logout') }}" method="POST" class="pt-2 border-t border-stone-100">
+                <form action="{{ route('logout') }}" method="POST" class="pt-1">
                     @csrf
-                    <button type="submit" class="flex items-center gap-2.5 text-sm font-semibold text-red-600 hover:text-red-700 py-2 w-full text-left">
+                    <button type="submit" class="flex items-center gap-2.5 text-sm font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-xl w-full text-left transition-colors">
                         <i class="fa-solid fa-arrow-right-from-bracket w-5"></i> Keluar (Logout)
                     </button>
                 </form>
             </div>
             @else
-            <div class="space-y-2">
-                <a href="{{ route('login') }}" class="block text-center bg-kopi-espresso text-white text-sm font-bold py-2.5 rounded-xl">
-                    Masuk / Login
+            <div class="grid grid-cols-2 gap-2 pt-3 border-t border-stone-100">
+                <a href="{{ route('login') }}" class="flex items-center justify-center gap-1.5 bg-kopi-espresso text-white text-xs font-bold py-2.5 rounded-xl shadow-xs hover:bg-kopi-dark transition-colors">
+                    <i class="fa-solid fa-arrow-right-to-bracket text-kopi-accent"></i> Login / Masuk
                 </a>
-                <a href="{{ route('register') }}" class="block text-center border border-kopi-border text-kopi-dark text-sm font-semibold py-2.5 rounded-xl">
-                    Daftar Akun Baru
+                <a href="{{ route('register') }}" class="flex items-center justify-center gap-1.5 border border-kopi-border text-kopi-dark text-xs font-semibold py-2.5 rounded-xl bg-white hover:bg-stone-50 transition-colors">
+                    <i class="fa-solid fa-user-plus text-stone-500"></i> Daftar Akun
                 </a>
             </div>
             @endauth
@@ -373,18 +483,81 @@
     <!-- Main E-Commerce Product Catalog Grid -->
     <section id="katalog" class="py-14 bg-white relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
+            
+            <!-- Catalog Header & Filter Navigation Bar -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 border-b border-stone-100 pb-6">
+                <div>
+                    <span class="text-xs uppercase font-bold tracking-widest text-kopi-accent block mb-1">Kurasi Roastery Spesialti</span>
+                    <h2 class="font-serif text-3xl font-bold text-kopi-dark">Katalog Produk Kopi</h2>
+                    <p class="text-xs text-stone-500 mt-1">Biji kopi terbaik Nusantara, disangrai segar siap kirim ke seluruh Indonesia.</p>
+                </div>
+
+                <!-- Category Filter Pills (Smooth Scroll-X on Mobile & Clean Wrap on Desktop) -->
+                <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1.5 max-w-full sm:flex-wrap">
+                    <button type="button" data-filter="all" onclick="filterCategory('all', event)" class="cat-pill-btn px-4 py-2 rounded-full text-xs font-bold transition-all bg-kopi-espresso text-white shadow-sm shrink-0 whitespace-nowrap">
+                        Semua Kopi
+                    </button>
+                    <button type="button" data-filter="single-origin" onclick="filterCategory('single-origin', event)" class="cat-pill-btn px-4 py-2 rounded-full text-xs font-medium transition-all bg-stone-100 hover:bg-stone-200 text-stone-700 shrink-0 whitespace-nowrap">
+                        Single Origin
+                    </button>
+                    <button type="button" data-filter="house-blend" onclick="filterCategory('house-blend', event)" class="cat-pill-btn px-4 py-2 rounded-full text-xs font-medium transition-all bg-stone-100 hover:bg-stone-200 text-stone-700 shrink-0 whitespace-nowrap">
+                        House Blend
+                    </button>
+                    <button type="button" data-filter="cold-brew-rtd" onclick="filterCategory('cold-brew-rtd', event)" class="cat-pill-btn px-4 py-2 rounded-full text-xs font-medium transition-all bg-stone-100 hover:bg-stone-200 text-stone-700 shrink-0 whitespace-nowrap">
+                        Siap Minum
+                    </button>
+                    <button type="button" data-filter="wishlist" onclick="filterCategory('wishlist', event)" class="cat-pill-btn px-4 py-2 rounded-full text-xs font-medium transition-all bg-stone-100 hover:bg-stone-200 text-stone-700 flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+                        <i class="fa-solid fa-heart text-red-500 text-[11px]"></i> Wishlist
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter / Search Active Feedback Banner -->
+            <div id="catalog-filter-info" class="hidden mb-6 flex items-center justify-between bg-kopi-cream px-4 py-2.5 rounded-xl border border-kopi-border text-xs text-kopi-dark">
+                <span id="catalog-filter-text"></span>
+                <button type="button" onclick="clearSearch()" class="text-kopi-accent font-bold hover:underline flex items-center gap-1">
+                    <i class="fa-solid fa-rotate-left text-[10px]"></i> Reset Filter
+                </button>
+            </div>
+
+            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
 
                 @foreach ($products as $product)
-                <div class="product-card bg-kopi-cream rounded-2xl overflow-hidden border border-kopi-border/80 flex flex-col justify-between relative group">
+                @php
+                    $prodNameLower = strtolower($product->name);
+                    $isSiapSeduh = str_contains($prodNameLower, 'siap seduh') 
+                                || str_contains($prodNameLower, 'drip bag') 
+                                || str_contains($prodNameLower, 'cold brew') 
+                                || str_contains($prodNameLower, 'siap minum') 
+                                || str_contains($prodNameLower, 'rtd');
+
+                    if ($isSiapSeduh) {
+                        $prodCat = 'cold-brew-rtd';
+                        $catLabel = str_contains($prodNameLower, 'drip bag') ? 'Siap Seduh (Drip Bag)' : 'Siap Minum (RTD)';
+                    } elseif (str_contains($prodNameLower, 'blend') || str_contains($prodNameLower, 'espresso')) {
+                        $prodCat = 'house-blend';
+                        $catLabel = 'House Blend';
+                    } else {
+                        $prodCat = 'single-origin';
+                        $catLabel = 'Single Origin';
+                    }
+                @endphp
+                <div class="product-card bg-kopi-cream rounded-2xl overflow-hidden border border-kopi-border/80 flex flex-col justify-between relative group"
+                     data-id="{{ $product->id }}"
+                     data-name="{{ strtolower($product->name) }}"
+                     data-category="{{ $prodCat }}"
+                     data-origin="{{ strtolower($product->origin ?? '') }}"
+                     data-notes="{{ strtolower($product->tasting_notes ?? '') }}"
+                     data-desc="{{ strtolower($product->description ?? '') }}"
+                     data-price="{{ $product->price }}">
                     <div class="relative bg-[#eee6dc] h-72 overflow-hidden">
                         <!-- Badges -->
                         <div class="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
                             <span class="bg-kopi-espresso text-white text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider shadow">Best Seller</span>
                             <span class="badge-sale text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider shadow">Hemat 15%</span>
                         </div>
-                        <button class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-stone-500 hover:text-red-500 flex items-center justify-center transition-colors shadow">
-                            <i class="fa-regular fa-heart text-sm"></i>
+                        <button type="button" onclick="toggleWishlist({{ $product->id }}, event)" id="card-wishlist-btn-{{ $product->id }}" class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-stone-500 hover:text-red-500 flex items-center justify-center transition-colors shadow" title="Tambah ke Favorit">
+                            <i class="fa-regular fa-heart text-sm" id="card-wishlist-icon-{{ $product->id }}"></i>
                         </button>
 
                         <img src="{{ $product->main_image ?: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600' }}" alt="{{ $product->name }}" class="img-zoom w-full h-full object-cover">
@@ -393,7 +566,7 @@
                     <div class="p-5 flex-1 flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between text-xs text-stone-500 mb-1.5">
-                                <span class="font-medium text-kopi-accent">Single Origin • 250gr</span>
+                                <span class="font-medium text-kopi-accent">{{ $catLabel }} • {{ $product->weight ?? 250 }}gr</span>
                                 <span class="flex items-center gap-1 text-amber-500 font-semibold"><i class="fa-solid fa-star text-[11px]"></i> 4.9 (128)</span>
                             </div>
                             <h3 class="font-serif text-lg font-bold text-kopi-dark group-hover:text-kopi-accent transition-colors leading-snug mb-1">
@@ -411,11 +584,34 @@
 
                             <!-- Grind Option Dropdown Mini -->
                             <div class="mb-3">
-                                <select id="grind-select-{{ $product->id }}" class="w-full text-xs bg-white border border-kopi-border rounded-lg py-1.5 px-2 text-stone-700 focus:outline-none focus:ring-1 focus:ring-kopi-accent">
-                                    @foreach ($JenisProducts as $jenisProduct)
-                                        {{-- DIPERBAIKI: Nilai value menggunakan ID dari jenis_products --}}
-                                        <option value="{{ $jenisProduct->id }}">{{ $jenisProduct->name }}</option>
-                                    @endforeach
+                                <label class="block text-[11px] font-semibold text-stone-600 mb-1">
+                                    <i class="fa-solid fa-sliders text-kopi-accent mr-1"></i> Pilihan Gilingan / Varian:
+                                </label>
+                                <select id="grind-select-{{ $product->id }}" class="w-full text-xs bg-white border border-kopi-border rounded-lg py-1.5 px-2 text-stone-700 focus:outline-none focus:ring-1 focus:ring-kopi-accent shadow-xs">
+                                    @if ($isSiapSeduh)
+                                        @php
+                                            $siapSeduhOpt = $JenisProducts->firstWhere('id', 5) ?? $JenisProducts->first();
+                                        @endphp
+                                        <option value="{{ $siapSeduhOpt->id }}" selected>
+                                            ☕ Siap Seduh / Siap Minum (Praktis)
+                                        </option>
+                                    @else
+                                        @php
+                                            // Urutan sesuai permintaan: Giling Halus, Giling Sedang, Giling Kasar, Biji Utuh, Siap Seduh
+                                            $sortedJenis = collect([
+                                                $JenisProducts->firstWhere('id', 2), // Giling Halus
+                                                $JenisProducts->firstWhere('id', 3), // Giling Sedang
+                                                $JenisProducts->firstWhere('id', 4), // Giling Kasar
+                                                $JenisProducts->firstWhere('id', 1), // Biji Utuh
+                                                $JenisProducts->firstWhere('id', 5), // Siap Seduh
+                                            ])->filter();
+                                        @endphp
+                                        @foreach ($sortedJenis as $jenisProduct)
+                                            <option value="{{ $jenisProduct->id }}" {{ $jenisProduct->id == 2 ? 'selected' : '' }}>
+                                                {{ $jenisProduct->name }}
+                                            </option>
+                                        @endforeach
+                                    @endif
                                 </select>
                             </div>
 
@@ -431,6 +627,21 @@
                     </div>
                 </div> 
                 @endforeach 
+
+                <!-- Empty State -->
+                <div id="no-products-found" class="hidden col-span-full py-16 text-center">
+                    <div class="w-16 h-16 rounded-full bg-stone-100 text-stone-400 flex items-center justify-center mx-auto text-2xl mb-4">
+                        <i class="fa-solid fa-mug-hot"></i>
+                    </div>
+                    <h3 class="font-serif text-lg font-bold text-kopi-dark mb-1">Produk Tidak Ditemukan</h3>
+                    <p id="no-products-message" class="text-xs text-stone-500 max-w-md mx-auto mb-5">
+                        Tidak ada produk yang cocok dengan pencarian atau filter yang Anda pilih.
+                    </p>
+                    <button type="button" onclick="clearSearch()" class="inline-flex items-center gap-2 bg-kopi-espresso text-white text-xs font-semibold px-4 py-2.5 rounded-xl hover:bg-kopi-dark transition-colors">
+                        <i class="fa-solid fa-rotate-left"></i> Lihat Semua Produk
+                    </button>
+                </div>
+
             </div>
         </div>
     </section>
@@ -441,7 +652,7 @@
     <!-- Interactive Slide-over Shopping Cart Drawer -->
     <div id="cart-modal-backdrop" onclick="toggleCart()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden transition-opacity"></div>
     
-    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white z-50 shadow-2xl flex flex-col translate-x-full transition-transform duration-300">
+    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white z-50 shadow-2xl flex flex-col translate-x-full pointer-events-none invisible transition-all duration-300">
         <!-- Cart Header -->
         <div class="p-5 border-b border-kopi-border flex items-center justify-between bg-kopi-cream">
             <div class="flex items-center gap-2">
@@ -499,6 +710,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         // Muat data keranjang dari database saat halaman pertama kali dibuka
         loadCartFromDatabase();
+        updateWishlistUI();
     });
 
     // 1. Toggle Buka/Tutup Cart Drawer (Slide-Over)
@@ -507,13 +719,14 @@
         const backdrop = document.getElementById('cart-modal-backdrop');
         
         if (drawer.classList.contains('translate-x-full')) {
-            drawer.classList.remove('translate-x-full');
+            drawer.classList.remove('translate-x-full', 'pointer-events-none', 'invisible');
             backdrop.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         } else {
-            drawer.classList.add('translate-x-full');
+            drawer.classList.add('translate-x-full', 'pointer-events-none', 'invisible');
             backdrop.classList.add('hidden');
-            document.body.style.overflow = 'auto';
+            document.body.style.overflow = '';
+            document.body.style.overflowX = 'hidden';
         }
     }
 
@@ -752,11 +965,32 @@
         }
     }
 
-    // 11. Toggle Mobile Menu Drawer
+    // 11. Toggle Mobile Menu Drawer & Mobile Search Bar
     function toggleMobileMenu() {
         const drawer = document.getElementById('mobile-menu-drawer');
+        const searchBar = document.getElementById('mobile-search-bar');
         if (drawer) {
             drawer.classList.toggle('hidden');
+        }
+        if (searchBar && !searchBar.classList.contains('hidden')) {
+            searchBar.classList.add('hidden');
+        }
+    }
+
+    function toggleMobileSearch() {
+        const searchBar = document.getElementById('mobile-search-bar');
+        const drawer = document.getElementById('mobile-menu-drawer');
+        if (drawer && !drawer.classList.contains('hidden')) {
+            drawer.classList.add('hidden');
+        }
+        if (searchBar) {
+            searchBar.classList.toggle('hidden');
+            if (!searchBar.classList.contains('hidden')) {
+                const inp = document.getElementById('mobileSearchInputQuick');
+                if (inp) {
+                    setTimeout(() => inp.focus(), 50);
+                }
+            }
         }
     }
 
@@ -770,6 +1004,310 @@
             }
         }
     });
+
+    // 12. Salin Kode Promo Voucher
+    function copyPromoCode(code) {
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(code).then(() => {
+                showToast(`Kode voucher "${code}" berhasil disalin!`);
+            }).catch(() => {
+                showToast(`Kode voucher: ${code}`);
+            });
+        } else {
+            const tempInput = document.createElement('input');
+            tempInput.value = code;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast(`Kode voucher "${code}" berhasil disalin!`);
+        }
+    }
+
+    // 13. Fitur Pencarian Produk Real-Time
+    function handleSearch(query) {
+        const q = (query || '').trim().toLowerCase();
+        
+        // Sinkronisasi input pencarian desktop dan mobile
+        const desktopInput = document.getElementById('headerSearchInput');
+        const mobileInput = document.getElementById('mobileSearchInput');
+        const quickInput = document.getElementById('mobileSearchInputQuick');
+        const clearBtn = document.getElementById('searchClearBtn');
+        const clearBtnMobile = document.getElementById('searchClearBtnMobile');
+        
+        if (desktopInput && desktopInput.value !== query) desktopInput.value = query;
+        if (mobileInput && mobileInput.value !== query) mobileInput.value = query;
+        if (quickInput && quickInput.value !== query) quickInput.value = query;
+        
+        if (clearBtn) {
+            if (q.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+        }
+        if (clearBtnMobile) {
+            if (q.length > 0) {
+                clearBtnMobile.classList.remove('hidden');
+            } else {
+                clearBtnMobile.classList.add('hidden');
+            }
+        }
+        
+        const cards = document.querySelectorAll('.product-card');
+        let visibleCount = 0;
+        
+        cards.forEach(card => {
+            if (!q) {
+                card.style.display = '';
+                visibleCount++;
+                return;
+            }
+            
+            const name = card.dataset.name || '';
+            const origin = card.dataset.origin || '';
+            const notes = card.dataset.notes || '';
+            const desc = card.dataset.desc || '';
+            
+            if (name.includes(q) || origin.includes(q) || notes.includes(q) || desc.includes(q)) {
+                card.style.display = '';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Gulir otomatis ke katalog jika mulai mengetik dari atas
+        if (q.length >= 2 && window.scrollY < 250) {
+            const katalogSec = document.getElementById('katalog');
+            if (katalogSec) {
+                katalogSec.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // Perbarui info pencarian dan empty state
+        const infoBar = document.getElementById('catalog-filter-info');
+        const infoText = document.getElementById('catalog-filter-text');
+        const noProducts = document.getElementById('no-products-found');
+        
+        if (q.length > 0) {
+            if (infoBar && infoText) {
+                infoBar.classList.remove('hidden');
+                infoText.innerHTML = `Hasil pencarian untuk "<strong>${escapeHtml(query)}</strong>" (${visibleCount} produk ditemukan)`;
+            }
+        } else {
+            if (infoBar) infoBar.classList.add('hidden');
+        }
+        
+        if (noProducts) {
+            if (visibleCount === 0) {
+                noProducts.classList.remove('hidden');
+                document.getElementById('no-products-message').innerText = `Tidak ada produk kopi yang cocok dengan kata kunci "${query}".`;
+            } else {
+                noProducts.classList.add('hidden');
+            }
+        }
+    }
+
+    // 14. Reset / Bersihkan Pencarian & Filter
+    function clearSearch() {
+        const desktopInput = document.getElementById('headerSearchInput');
+        const mobileInput = document.getElementById('mobileSearchInput');
+        const quickInput = document.getElementById('mobileSearchInputQuick');
+        const clearBtn = document.getElementById('searchClearBtn');
+        const clearBtnMobile = document.getElementById('searchClearBtnMobile');
+        if (desktopInput) desktopInput.value = '';
+        if (mobileInput) mobileInput.value = '';
+        if (quickInput) quickInput.value = '';
+        if (clearBtn) clearBtn.classList.add('hidden');
+        if (clearBtnMobile) clearBtnMobile.classList.add('hidden');
+        filterCategory('all');
+    }
+
+    // 15. Filter Kategori Produk dari Header & Tab Pills
+    window.currentCategoryFilter = 'all';
+    function filterCategory(category, e) {
+        if (e && typeof e.preventDefault === 'function') {
+            e.preventDefault();
+        }
+        
+        window.currentCategoryFilter = category;
+        
+        // Bersihkan input teks pencarian saat berganti kategori
+        const desktopInput = document.getElementById('headerSearchInput');
+        const mobileInput = document.getElementById('mobileSearchInput');
+        const clearBtn = document.getElementById('searchClearBtn');
+        if (desktopInput) desktopInput.value = '';
+        if (mobileInput) mobileInput.value = '';
+        if (clearBtn) clearBtn.classList.add('hidden');
+        
+        // Perbarui status aktif tab kategori
+        document.querySelectorAll('.cat-pill-btn').forEach(btn => {
+            if (btn.dataset.filter === category) {
+                btn.className = 'cat-pill-btn px-4 py-2 rounded-full text-xs font-bold transition-all bg-kopi-espresso text-white shadow-sm';
+            } else {
+                btn.className = 'cat-pill-btn px-4 py-2 rounded-full text-xs font-medium transition-all bg-stone-100 hover:bg-stone-200 text-stone-700';
+            }
+        });
+        
+        const cards = document.querySelectorAll('.product-card');
+        const wishlist = getWishlist();
+        let visibleCount = 0;
+        
+        cards.forEach(card => {
+            const cardCat = card.dataset.category;
+            const cardId = parseInt(card.dataset.id);
+            
+            let show = false;
+            if (category === 'all') {
+                show = true;
+            } else if (category === 'wishlist') {
+                show = wishlist.includes(cardId);
+            } else if (category === cardCat) {
+                show = true;
+            }
+            
+            if (show) {
+                card.style.display = '';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Smooth scroll ke bagian katalog jika diklik dari menu navigasi
+        const katalogSec = document.getElementById('katalog');
+        if (katalogSec && e) {
+            katalogSec.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        const categoryLabels = {
+            'all': 'Semua Produk',
+            'single-origin': 'Single Origin',
+            'house-blend': 'House Blend',
+            'cold-brew-rtd': 'Siap Minum (Cold Brew & RTD)',
+            'wishlist': 'Wishlist (Produk Favorit Anda)'
+        };
+        
+        const infoBar = document.getElementById('catalog-filter-info');
+        const infoText = document.getElementById('catalog-filter-text');
+        const noProducts = document.getElementById('no-products-found');
+        
+        if (category !== 'all') {
+            if (infoBar && infoText) {
+                infoBar.classList.remove('hidden');
+                infoText.innerHTML = `Menampilkan kategori: <strong>${categoryLabels[category] || category}</strong> (${visibleCount} produk)`;
+            }
+        } else {
+            if (infoBar) infoBar.classList.add('hidden');
+        }
+        
+        if (noProducts) {
+            if (visibleCount === 0) {
+                noProducts.classList.remove('hidden');
+                if (category === 'wishlist') {
+                    document.getElementById('no-products-message').innerText = 'Belum ada produk di Wishlist Anda. Klik ikon hati pada kartu produk untuk menambahkan!';
+                } else {
+                    document.getElementById('no-products-message').innerText = `Belum ada produk untuk kategori ${categoryLabels[category] || category}.`;
+                }
+            } else {
+                noProducts.classList.add('hidden');
+            }
+        }
+    }
+
+    // 16. Logika Wishlist Terintegrasi (LocalStorage)
+    function getWishlist() {
+        try {
+            return JSON.parse(localStorage.getItem('kopikita_wishlist') || '[]');
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveWishlist(list) {
+        localStorage.setItem('kopikita_wishlist', JSON.stringify(list));
+        updateWishlistUI();
+    }
+
+    function updateWishlistUI() {
+        const list = getWishlist();
+        const count = list.length;
+        
+        const counterBadge = document.getElementById('wishlist-counter');
+        const mobileCounterBadge = document.getElementById('mobile-wishlist-counter');
+        const headerIcon = document.getElementById('headerWishlistIcon');
+        
+        if (counterBadge) counterBadge.innerText = count;
+        if (mobileCounterBadge) mobileCounterBadge.innerText = count;
+        
+        if (headerIcon) {
+            if (count > 0) {
+                headerIcon.classList.remove('fa-regular');
+                headerIcon.classList.add('fa-solid', 'text-red-500');
+            } else {
+                headerIcon.classList.remove('fa-solid', 'text-red-500');
+                headerIcon.classList.add('fa-regular');
+            }
+        }
+        
+        document.querySelectorAll('.product-card').forEach(card => {
+            const id = parseInt(card.dataset.id);
+            const heartIcon = document.getElementById(`card-wishlist-icon-${id}`);
+            if (heartIcon) {
+                if (list.includes(id)) {
+                    heartIcon.classList.remove('fa-regular', 'text-stone-500');
+                    heartIcon.classList.add('fa-solid', 'text-red-500');
+                } else {
+                    heartIcon.classList.remove('fa-solid', 'text-red-500');
+                    heartIcon.classList.add('fa-regular', 'text-stone-500');
+                }
+            }
+        });
+    }
+
+    function toggleWishlist(productId, e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        let list = getWishlist();
+        const idx = list.indexOf(productId);
+        
+        if (idx > -1) {
+            list.splice(idx, 1);
+            saveWishlist(list);
+            showToast('Produk dihapus dari Wishlist');
+        } else {
+            list.push(productId);
+            saveWishlist(list);
+            showToast('Produk ditambahkan ke Wishlist!');
+        }
+        
+        if (window.currentCategoryFilter === 'wishlist') {
+            filterCategory('wishlist');
+        }
+    }
+
+    function toggleWishlistFilter() {
+        const katalogSec = document.getElementById('katalog');
+        if (katalogSec) {
+            katalogSec.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        const list = getWishlist();
+        if (list.length === 0) {
+            showToast('Wishlist Anda masih kosong!');
+        }
+        filterCategory('wishlist');
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.innerText = text;
+        return div.innerHTML;
+    }
 </script>
 </body>
 </html>

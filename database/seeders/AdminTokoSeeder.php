@@ -140,11 +140,11 @@ class AdminTokoSeeder extends Seeder
         $storeA = store_setting::updateOrCreate(
             ['id' => 1],
             [
-                'store_name' => 'KopiKita - Toko A (Group Bandung)',
-                'tagline' => 'Roastery & Store Kopi Spesialti Bandung',
+                'store_name' => 'KOPIKITA',
+                'tagline' => 'Roastery & Store',
                 'email' => 'toko.a@kopikita.id',
-                'phone' => '081122334401',
-                'whatsapp' => '6281122334401',
+                'phone' => '083803943909',
+                'whatsapp' => '6283803943909',
                 'address' => 'Jl. Ir. H. Juanda No. 128, Dago, Bandung, Jawa Barat',
                 'instagram_url' => 'https://instagram.com/kopikita_tokoa',
                 'tiktok_url' => 'https://tiktok.com/@kopikita_tokoa',

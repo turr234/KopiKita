@@ -46,6 +46,42 @@
     .table td, .table th {
       vertical-align: middle;
     }
+
+    /* Cegah Scroll-X Tidak Diinginkan */
+    html, body {
+      overflow-x: hidden !important;
+      max-width: 100vw;
+    }
+    .main-wrapper {
+      overflow-x: hidden !important;
+      max-width: 100%;
+    }
+
+    /* Navbar Anti-Collision & Fluid Responsive Flow */
+    @media (min-width: 992px) and (max-width: 1400px) {
+      .navbar-custom {
+        grid-template-columns: auto 1fr auto !important;
+        gap: 1rem !important;
+      }
+      .navbar-search-wrapper {
+        max-width: 320px;
+        margin: 0 auto;
+      }
+    }
+    @media (max-width: 991px) {
+      .navbar-custom {
+        display: flex !important;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+      .navbar-search-wrapper {
+        order: 3;
+        width: 100%;
+        max-width: 100%;
+      }
+    }
   </style>
 
   @stack('styles')

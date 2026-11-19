@@ -2,7 +2,17 @@
 @section('content')
     <a href="{{ route('store_settings.index') }}" class="btn btn-secondary mb-3">Kembali</a>
 
-    <!-- PERBAIKAN: Menghapus </form> di baris ini agar form membungkus semua input -->
+    @if ($errors->any())
+        <div class="alert alert-danger mb-3">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <!-- Form update pengaturan toko -->
     <form action="{{ route('store_settings.update', $store_setting->id) }}" method="POST">
         @csrf
         @method('PUT')

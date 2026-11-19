@@ -1,25 +1,33 @@
 @php
     $store = $storeSetting ?? \App\Models\store_setting::first();
-    $storeName = $store->store_name ?? 'KOPIKITA';
-    $tagline = $store->tagline ?? 'Roastery & Artisan Specialty Coffee';
-    $aboutText = $store->about ?? 'Menghadirkan kurasi biji kopi spesialti terbaik dari lereng pegunungan Nusantara. Di-roasting berkala dengan standar artisan untuk menjamin aroma segar dan cita rasa otentik di setiap cangkir Anda.';
-    $address = $store->address ?? 'Jl. Ir. H. Juanda No. 128, Dago, Bandung, Jawa Barat';
-    $phone = $store->phone ?? '0811-2233-4401';
-    $rawWa = $store->whatsapp ?? '6281122334401';
+    $rawStoreName = !empty($store->store_name) ? $store->store_name : 'KOPIKITA';
+    $brandParts = explode('-', $rawStoreName);
+    $cleanBrand = trim($brandParts[0]);
+    $storeName = (!empty($cleanBrand) && strtolower($cleanBrand) !== 'kopikita') ? $cleanBrand : 'KOPIKITA';
+    $rawTagline = !empty($store->tagline) ? $store->tagline : 'Roastery & Artisan Specialty Coffee';
+    $tagline = str_contains(strtolower($rawTagline), 'bandung') ? 'Roastery & Artisan Specialty Coffee' : $rawTagline;
+    $aboutText = !empty($store->about) ? $store->about : 'Menghadirkan kurasi biji kopi spesialti terbaik dari lereng pegunungan Nusantara. Di-roasting berkala dengan standar artisan untuk menjamin aroma segar dan cita rasa otentik di setiap cangkir Anda.';
+    $address = !empty($store->address) ? $store->address : 'Jl. Ir. H. Juanda No. 128, Dago, Bandung, Jawa Barat';
+    $phone = !empty($store->phone) ? $store->phone : '0838-0394-3909';
+    $cleanPhone = preg_replace('/[^0-9+]/', '', $phone);
+    $rawWa = !empty($store->whatsapp) ? $store->whatsapp : '6283803943909';
     $cleanWa = preg_replace('/[^0-9]/', '', $rawWa);
     if (str_starts_with($cleanWa, '0')) {
         $cleanWa = '62' . substr($cleanWa, 1);
     }
-    $email = $store->email ?? 'halo@kopikita.id';
-    $instagram = $store->instagram_url ?? '#';
-    $tiktok = $store->tiktok_url ?? '#';
-    $facebook = $store->facebook_url ?? '#';
+    if (empty($cleanWa)) {
+        $cleanWa = '6283803943909';
+    }
+    $email = !empty($store->email) ? $store->email : 'halo@kopikita.id';
+    $instagram = !empty($store->instagram_url) && $store->instagram_url !== '#' ? $store->instagram_url : 'https://instagram.com';
+    $tiktok = !empty($store->tiktok_url) && $store->tiktok_url !== '#' ? $store->tiktok_url : 'https://tiktok.com';
+    $facebook = !empty($store->facebook_url) && $store->facebook_url !== '#' ? $store->facebook_url : 'https://facebook.com';
 @endphp
 
 <!-- ========================================================
      FOOTER SECTION - KOPIKITA PREMIUM ROASTERY & STORE
      ======================================================== -->
-<footer class="bg-gradient-to-b from-[#241510] via-kopi-dark to-[#180d09] text-stone-300 border-t border-kopi-border/20 pt-16 pb-10 relative overflow-hidden">
+<footer id="tentang" class="bg-gradient-to-b from-[#241510] via-kopi-dark to-[#180d09] text-stone-300 border-t border-kopi-border/20 pt-16 pb-10 relative overflow-hidden">
     
     <!-- Background Coffee Beans Subtle Glow Watermark -->
     <div class="absolute -right-24 -bottom-24 w-96 h-96 bg-kopi-accent/5 rounded-full blur-3xl pointer-events-none"></div>
@@ -79,13 +87,13 @@
             
             <!-- Column 1: Brand & Bio (5 cols) -->
             <div class="lg:col-span-5 space-y-5">
-                <a href="{{ route('landing_pages.index') }}" class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-kopi-accent to-[#945f34] flex items-center justify-center text-white shadow-lg shadow-kopi-accent/20">
+                <a href="{{ route('landing_pages.index') }}" class="flex items-center gap-3 group">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-kopi-accent to-[#945f34] flex items-center justify-center text-white shadow-lg shadow-kopi-accent/20 group-hover:scale-105 transition-transform">
                         <i class="fa-solid fa-mug-hot text-xl"></i>
                     </div>
                     <div>
-                        <span class="font-serif font-bold text-2xl tracking-wider text-white block leading-none">KOPIKITA</span>
-                        <span class="text-[10px] uppercase font-bold tracking-widest text-kopi-accent-light">Roastery & Coffee Store</span>
+                        <span class="font-serif font-bold text-2xl tracking-wider text-white block leading-none">{{ $storeName }}</span>
+                        <span class="text-[10px] uppercase font-bold tracking-widest text-kopi-accent-light">{{ $tagline }}</span>
                     </div>
                 </a>
 
@@ -101,18 +109,18 @@
 
                 <!-- Social Media Buttons -->
                 <div>
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-stone-400 block mb-3">Ikuti Komunitas KopiKami:</span>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-stone-400 block mb-3">Ikuti Komunitas Kami:</span>
                     <div class="flex items-center gap-2.5">
-                        <a href="{{ $instagram }}" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-white/[0.05] hover:bg-gradient-to-tr hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] flex items-center justify-center text-stone-300 hover:text-white transition-all transform hover:-translate-y-1 shadow-sm border border-white/10" title="Instagram KopiKita">
+                        <a href="{{ $instagram }}" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-white/[0.05] hover:bg-gradient-to-tr hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] flex items-center justify-center text-stone-300 hover:text-white transition-all transform hover:-translate-y-1 shadow-sm border border-white/10" title="Instagram {{ $storeName }}">
                             <i class="fa-brands fa-instagram text-sm"></i>
                         </a>
-                        <a href="{{ $tiktok }}" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-white/[0.05] hover:bg-black flex items-center justify-center text-stone-300 hover:text-white transition-all transform hover:-translate-y-1 shadow-sm border border-white/10" title="TikTok KopiKita">
+                        <a href="{{ $tiktok }}" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-white/[0.05] hover:bg-black flex items-center justify-center text-stone-300 hover:text-white transition-all transform hover:-translate-y-1 shadow-sm border border-white/10" title="TikTok {{ $storeName }}">
                             <i class="fa-brands fa-tiktok text-sm"></i>
                         </a>
-                        <a href="{{ $facebook }}" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-white/[0.05] hover:bg-[#1877F2] flex items-center justify-center text-stone-300 hover:text-white transition-all transform hover:-translate-y-1 shadow-sm border border-white/10" title="Facebook KopiKita">
+                        <a href="{{ $facebook }}" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-white/[0.05] hover:bg-[#1877F2] flex items-center justify-center text-stone-300 hover:text-white transition-all transform hover:-translate-y-1 shadow-sm border border-white/10" title="Facebook {{ $storeName }}">
                             <i class="fa-brands fa-facebook-f text-sm"></i>
                         </a>
-                        <a href="https://wa.me/{{ $cleanWa }}?text=Halo%20Admin%20KopiKita%2C%20saya%20ingin%20tanya%20seputar%20produk%20kopi..." target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-white/[0.05] hover:bg-[#25D366] flex items-center justify-center text-stone-300 hover:text-white transition-all transform hover:-translate-y-1 shadow-sm border border-white/10" title="WhatsApp Customer Service">
+                        <a href="https://wa.me/{{ $cleanWa }}?text={{ urlencode('Halo Admin ' . $storeName . ', saya ingin tanya seputar produk kopi...') }}" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-white/[0.05] hover:bg-[#25D366] flex items-center justify-center text-stone-300 hover:text-white transition-all transform hover:-translate-y-1 shadow-sm border border-white/10" title="WhatsApp Customer Service">
                             <i class="fa-brands fa-whatsapp text-sm"></i>
                         </a>
                     </div>
@@ -127,7 +135,7 @@
                 </h3>
                 <ul class="space-y-2.5 text-xs text-stone-400">
                     <li>
-                        <a href="#katalog" class="hover:text-kopi-accent transition-colors flex items-center gap-2">
+                        <a href="{{ route('landing_pages.index') }}#katalog" class="hover:text-kopi-accent transition-colors flex items-center gap-2">
                             <i class="fa-solid fa-mug-hot text-[10px] text-kopi-accent"></i>
                             Katalog Semua Produk
                         </a>
@@ -141,7 +149,7 @@
                     </li>
                     @endauth
                     <li>
-                        <button type="button" onclick="toggleCart()" class="hover:text-kopi-accent transition-colors flex items-center gap-2 text-left">
+                        <button type="button" onclick="if(typeof toggleCart === 'function'){ toggleCart(); } else { window.location.href='{{ route('landing_pages.index') }}'; }" class="hover:text-kopi-accent transition-colors flex items-center gap-2 text-left">
                             <i class="fa-solid fa-bag-shopping text-[10px] text-kopi-accent"></i>
                             Keranjang Belanja
                         </button>
@@ -161,15 +169,15 @@
                     </li>
                     @endguest
                     <li>
-                        <a href="https://wa.me/{{ $cleanWa }}?text=Halo%20Admin%20KopiKita%2C%20saya%20butuh%20panduan%20cara%20pemesanan..." target="_blank" class="hover:text-kopi-accent transition-colors flex items-center gap-2">
+                        <a href="https://wa.me/{{ $cleanWa }}?text={{ urlencode('Halo Admin ' . $storeName . ', saya butuh panduan cara pemesanan...') }}" target="_blank" rel="noopener noreferrer" class="hover:text-kopi-accent transition-colors flex items-center gap-2">
                             <i class="fa-solid fa-circle-question text-[10px] text-kopi-accent"></i>
                             Panduan Pesan & Bayar
                         </a>
                     </li>
                     <li>
-                        <a href="#tentang" class="hover:text-kopi-accent transition-colors flex items-center gap-2">
+                        <a href="{{ route('landing_pages.index') }}#tentang" class="hover:text-kopi-accent transition-colors flex items-center gap-2">
                             <i class="fa-solid fa-circle-info text-[10px] text-kopi-accent"></i>
-                            Tentang KopiKita
+                            Tentang {{ $storeName }}
                         </a>
                     </li>
                 </ul>
@@ -190,36 +198,12 @@
 
                     <div class="flex items-center gap-3">
                         <i class="fa-solid fa-phone text-kopi-accent shrink-0 text-sm"></i>
-                        <a href="tel:{{ $phone }}" class="hover:text-white transition-colors">{{ $phone }}</a>
+                        <a href="tel:{{ $cleanPhone }}" class="hover:text-white transition-colors">{{ $phone }}</a>
                     </div>
 
                     <div class="flex items-center gap-3">
                         <i class="fa-brands fa-whatsapp text-emerald-400 shrink-0 text-sm"></i>
-                        <a href="https://wa.me/{{ $cleanWa }}" target="_blank" class="hover:text-emerald-400 transition-colors">
-                            +{{ $cleanWa }} (CS Fast Response)
-                        </a>
-                    </div>
-
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-envelope text-kopi-accent shrink-0 text-sm"></i>
-                        <a href="mailto:{{ $email }}" class="hover:text-white transition-colors">{{ $email }}</a>
-                    </div>
-
-                    <div class="flex items-center gap-3 pt-1 border-t border-white/5">
-                        <i class="fa-regular fa-clock text-kopi-accent shrink-0 text-sm"></i>
-                        <span>Buka Setiap Hari: 08.00 - 21.00 WIB</span>
-                    </div>
-                </div>
-            </div>
-
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-phone text-kopi-accent shrink-0 text-sm"></i>
-                        <a href="tel:{{ $phone }}" class="hover:text-white transition-colors">{{ $phone }}</a>
-                    </div>
-
-                    <div class="flex items-center gap-3">
-                        <i class="fa-brands fa-whatsapp text-emerald-400 shrink-0 text-sm"></i>
-                        <a href="https://wa.me/{{ $cleanWa }}" target="_blank" class="hover:text-emerald-400 transition-colors">
+                        <a href="https://wa.me/{{ $cleanWa }}" target="_blank" rel="noopener noreferrer" class="hover:text-emerald-400 transition-colors">
                             +{{ $cleanWa }} (CS Fast Response)
                         </a>
                     </div>
@@ -273,8 +257,8 @@
             </p>
 
             <div class="flex items-center gap-6">
-                <a href="#katalog-produk" class="hover:text-stone-300 transition-colors">Katalog</a>
-                <a href="https://wa.me/{{ $cleanWa }}" target="_blank" class="hover:text-stone-300 transition-colors">Bantuan</a>
+                <a href="{{ route('landing_pages.index') }}#katalog" class="hover:text-stone-300 transition-colors">Katalog</a>
+                <a href="https://wa.me/{{ $cleanWa }}" target="_blank" rel="noopener noreferrer" class="hover:text-stone-300 transition-colors">Bantuan</a>
                 <button type="button" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex items-center gap-1.5 text-kopi-accent hover:text-kopi-accent-light transition-colors group">
                     <span>Kembali ke Atas</span>
                     <i class="fa-solid fa-arrow-up text-xs transform group-hover:-translate-y-0.5 transition-transform"></i>
